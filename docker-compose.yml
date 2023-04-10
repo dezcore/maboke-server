@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  maboke-serve:
+    image: maboke-serve
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:8080
+    volumes:
+      - .:/app
