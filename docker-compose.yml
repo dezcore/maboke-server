@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  maboke-serve:
-    image: maboke-serve
+  maboke-server:
+    image: maboke-server
     build:
       context: .
       dockerfile: ./Dockerfile
