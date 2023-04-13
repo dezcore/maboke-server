@@ -1,8 +1,6 @@
 package com.zcore.mabokeserver.drive;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,15 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/drive")
 public class DriveController {
-    private Logger logger = LoggerFactory.getLogger(DriveController.class);
     private final DriveService driveService;
-    
+
     public DriveController(DriveService service){
         driveService = service;
     }
 
     @PostMapping
-    public ResponseEntity<Drive> add(@RequestBody Drive drive) {
+    public ResponseEntity<Drive> add(@RequestBody Drive drive) throws Exception {
         return  driveService.add(drive);
     }
 
@@ -39,12 +36,12 @@ public class DriveController {
     }
 
     @PutMapping
-    public ResponseEntity updateDrive(@RequestBody Drive drive) {
+    public ResponseEntity<Drive> updateDrive(@RequestBody Drive drive) {
         return driveService.updateDrive(drive);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Drive> deleteDrive(@PathVariable("id") Long id) {
         return driveService.deleteDrive(id);
     }
 }

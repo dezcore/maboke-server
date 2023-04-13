@@ -1,5 +1,6 @@
 package com.zcore.mabokeserver.drive;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class DriveService {
@@ -20,7 +22,20 @@ public class DriveService {
     }
 
     public ResponseEntity<Drive> add(Drive drive) {
-        return  null;//ResponseEntity.created("").build();
+        URI location;
+        Drive saveDrive;
+        
+        if(drive.getName() != null) {
+            saveDrive = driveRepository.save(drive);
+            location = ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{id}")
+                        .buildAndExpand(saveDrive.getId())
+                        .toUri();
+
+            return ResponseEntity.created(location).build();
+        } else {
+            return  ResponseEntity.badRequest().body(drive);
+        }
     }
 
     public ResponseEntity<List<Drive>> getDrives(/*Pageable pageable*/) {
@@ -30,8 +45,8 @@ public class DriveService {
                    pageable.getPageSize(),
                    pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
        //ResponseEntity.ok(page.toList());
-
-        return null;
+        List<Drive> list = (List<Drive>) driveRepository.findAll(); 
+        return ResponseEntity.ok(list);
     }
 
     public ResponseEntity<Drive> findById(Long id) {
@@ -45,29 +60,28 @@ public class DriveService {
     }
 
     @PutMapping
-    public ResponseEntity updateDrive(Drive drive) {
+    public ResponseEntity<Drive> updateDrive(Drive drive) {
         Drive dbDrive;
         Optional<Drive> dOptional = driveRepository.findById(drive.getId());
 
         if(dOptional.isPresent()) {
             dbDrive = dOptional.get();
-            //set properties
-            //update db
+            dbDrive.setName(drive.getName());
+            driveRepository.save(dbDrive);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
-
-        return null;
     }
-    
-    public ResponseEntity deleteDrive(Long id) {
-        Drive dbDrive;
+
+    public ResponseEntity<Drive> deleteDrive(Long id) {
         Optional<Drive> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
-            //set properties
-            //update db
-            return new ResponseEntity(HttpStatus.OK);
+            driveRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
         } else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 }
