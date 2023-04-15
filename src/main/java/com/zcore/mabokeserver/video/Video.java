@@ -1,26 +1,32 @@
-package com.zcore.mabokeserver.model;
+package com.zcore.mabokeserver.video;
+
+import nonapi.io.github.classgraph.json.Id;
 
 public class Video {
-    private long id;
+    @Id
+    private Long id;
     private String content; 
 
-    public Video(long id, String content) {
+
+    public Video() {}
+
+    public Video(Long id, String content) {
         this.id = id;
         this.content = content;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-    
     public void setContent(String content) {
         this.content = content;
     }
@@ -29,6 +35,4 @@ public class Video {
     public String toString() {
         return "Video [id=" + id + ", content=" + content + "]";
     }
-
-    
 }

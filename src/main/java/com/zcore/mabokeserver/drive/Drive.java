@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id;
 public class Drive {
     @Id
     private Long id;
-    //@Column(name = "name", nullable = false)
     private String name;
 
     public Drive(){}

@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,8 +15,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class DriveService {
     private DriveRepository driveRepository;
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
-
-    public DriveService(DriveRepository driveRepository){
+    
+    public DriveService(DriveRepository driveRepository) {
         this.driveRepository = driveRepository;
     }
 
