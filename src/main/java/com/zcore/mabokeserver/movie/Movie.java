@@ -1,41 +1,21 @@
 package com.zcore.mabokeserver.movie;
 
+import java.util.Date;
 import org.springframework.data.annotation.Id;
+
+import com.zcore.mabokeserver.cast.Cast;
+import com.zcore.mabokeserver.director.Director;
+import com.zcore.mabokeserver.studio.Studio;
 
 public class Movie {
     @Id
     private Long id;
-    private String name;
-    
-    public Movie(){}
-
-    public Movie(String name) {
-        this.name = name;
-    }
-    
-    public Movie(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Drive [id=" + id + ", name=" + name + "]";
-    }
+    private String title;
+    private String category;
+    private String summary;
+    private Date year;
+    private Director director;
+    private Director producer;
+    private Studio studio;
+    private Cast cast;  
 }

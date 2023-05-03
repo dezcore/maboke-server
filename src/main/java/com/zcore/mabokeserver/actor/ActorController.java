@@ -1,4 +1,4 @@
-package com.zcore.mabokeserver.kid;
+package com.zcore.mabokeserver.actor;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -12,38 +12,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/kid")
-public class KidController {
-    private final KidService driveService;
+@RequestMapping("/actor")
+public class ActorController {
+    private final ActorService driveService;
     //@Autowired
     //private DriveService service;
 
-    public KidController(KidService service){
+    public ActorController(ActorService service){
         driveService = service;
     }
 
     @PostMapping
-    public ResponseEntity<Kid> add(@RequestBody Kid drive) throws Exception {
+    public ResponseEntity<Actor> add(@RequestBody Actor drive) throws Exception {
         return  driveService.add(drive);
     }
 
     @GetMapping
-    public ResponseEntity<List<Kid>> getDrives() {
+    public ResponseEntity<List<Actor>> getDrives() {
         return driveService.getDrives();
     }
-
+    
     @GetMapping("/{id}")
-    public ResponseEntity<Kid> getById(@PathVariable Long id) {
+    public ResponseEntity<Actor> getById(@PathVariable Long id) {
         return driveService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Kid> updateDrive(@RequestBody Cast drive) {
+    public ResponseEntity<Actor> updateDrive(@RequestBody Actor drive) {
         return driveService.updateDrive(drive);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Kid> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Actor> deleteDrive(@PathVariable("id") Long id) {
         return driveService.deleteDrive(id);
     }
 }
