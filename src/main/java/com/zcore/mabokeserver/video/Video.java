@@ -1,15 +1,14 @@
 package com.zcore.mabokeserver.video;
 
-import nonapi.io.github.classgraph.json.Id;
+import org.springframework.data.annotation.Id;
 
 public class Video {
     @Id
     private Long id;
     private String content; 
-
-
+    
     public Video() {}
-
+    
     public Video(Long id, String content) {
         this.id = id;
         this.content = content;
