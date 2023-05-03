@@ -12,6 +12,7 @@ public class Show {
     @Id
     private Long id;
     private String title;
+    private String type;
     private String category;
     private String summary;
     private Date year;

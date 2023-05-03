@@ -8,6 +8,7 @@ public class Season {
     @Id
     private Long id;
     private String name;
+    private Date date;
     private String category;
     private String summary;
     private int number;
