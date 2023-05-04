@@ -10,3 +10,11 @@ services:
       - 3000:8080
     volumes:
       - .:/app
+    env_file:
+      - maboke.env
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - maboke-mysql-data:/var/lib/mysql
+    env_file:
+      - maboke.env
