@@ -7,6 +7,7 @@ public class Video {
     @Id
     private Long id;
     private String title;
+    private String category;
     private String summary;
     private String url;
     private String length;

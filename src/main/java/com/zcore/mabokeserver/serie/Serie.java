@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 
 import com.zcore.mabokeserver.cast.Cast;
 import com.zcore.mabokeserver.director.Director;
+import com.zcore.mabokeserver.season.Season;
 import com.zcore.mabokeserver.studio.Studio;
 
 public class Serie {
@@ -21,5 +22,6 @@ public class Serie {
     private Director producer;
     private Studio studio;
     private Cast cast;
-    private List<String> contentTag; 
+    private List<String> contentTag;
+    private List<Season> seasons; 
 }

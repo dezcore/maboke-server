@@ -1,22 +1,17 @@
-package com.zcore.mabokeserver.kid;
-
-import java.util.Date;
+package com.zcore.mabokeserver.search;
 
 import org.springframework.data.annotation.Id;
-
 import com.zcore.mabokeserver.cast.Cast;
 import com.zcore.mabokeserver.director.Director;
 import com.zcore.mabokeserver.studio.Studio;
+import com.zcore.mabokeserver.video.Video;
 
-public class Kid {
+public class Search {
     @Id
     private Long id;
-    private String title;
-    private String category;
-    private String summary;
-    private Date year;
     private Director director;
     private Director producer;
     private Studio studio;
-    private Cast cast;  
+    private Cast cast;
+    private Video video;
 }
