@@ -33,7 +33,7 @@ public class StudioController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Studio> getById(@PathVariable Long id) {
+    public ResponseEntity<Studio> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class StudioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Studio> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Studio> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

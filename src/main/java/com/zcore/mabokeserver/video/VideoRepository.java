@@ -1,7 +1,7 @@
 package com.zcore.mabokeserver.video;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface VideoRepository extends CrudRepository<Video, Long> {
+public interface VideoRepository extends MongoRepository<Video, String> {
         
 }

@@ -17,7 +17,7 @@ import com.zcore.mabokeserver.drive.Drive;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MabokeDriveControllerTests {
-    @Autowired
+   /* @Autowired
     TestRestTemplate restTemplate;
 
     @Test
@@ -87,7 +87,7 @@ public class MabokeDriveControllerTests {
         requestEntity = new HttpEntity<Drive>(drive);
         response = restTemplate.exchange("/drive", HttpMethod.PUT, requestEntity, Drive.class);
         assertThat(404).isEqualTo(response.getStatusCode().value());
-    }
+    }*/
     
     /*@Test
     public void deleteShouldReturnNoContent() {

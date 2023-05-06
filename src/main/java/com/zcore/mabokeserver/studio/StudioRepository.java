@@ -1,7 +1,7 @@
 package com.zcore.mabokeserver.studio;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface StudioRepository extends CrudRepository<Studio, Long> {
+public interface StudioRepository extends MongoRepository<Studio, String> {
     
 }

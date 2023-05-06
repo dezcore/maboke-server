@@ -48,7 +48,7 @@ public class DirectorService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Director> findById(Long id) {
+    public ResponseEntity<Director> findById(String id) {
         Optional<Director> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -73,7 +73,7 @@ public class DirectorService {
         }
     }
 
-    public ResponseEntity<Director> deleteDrive(Long id) {
+    public ResponseEntity<Director> deleteDrive(String id) {
         Optional<Director> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

@@ -20,12 +20,12 @@ public class SerieService {
         this.driveRepository = driveRepository;
     }
 
-    public ResponseEntity<Serie> add(Serie drive) {
+    public ResponseEntity<Serie> add(Serie serie) {
         URI location;
         Serie saveDrive;
         
-        if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
+        if(serie.getImg() != null) {
+            saveDrive = driveRepository.save(serie);
             location = ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
                         .buildAndExpand(saveDrive.getId())
@@ -33,7 +33,7 @@ public class SerieService {
 
             return ResponseEntity.created(location).build();
         } else {
-            return  ResponseEntity.badRequest().body(drive);
+            return  ResponseEntity.badRequest().body(serie);
         }
     }
 
@@ -48,7 +48,7 @@ public class SerieService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Serie> findById(Long id) {
+    public ResponseEntity<Serie> findById(String id) {
         Optional<Serie> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -59,13 +59,13 @@ public class SerieService {
     }
 
     @PutMapping
-    public ResponseEntity<Serie> updateDrive(Serie drive) {
+    public ResponseEntity<Serie> updateDrive(Serie serie) {
         Serie dbDrive;
-        Optional<Serie> dOptional = driveRepository.findById(drive.getId());
+        Optional<Serie> dOptional = driveRepository.findById(serie.getId());
 
         if(dOptional.isPresent()) {
             dbDrive = dOptional.get();
-            dbDrive.setName(drive.getName());
+            //dbDrive.setName(serie.getName());
             driveRepository.save(dbDrive);
             return ResponseEntity.noContent().build();
         } else {
@@ -73,7 +73,7 @@ public class SerieService {
         }
     }
 
-    public ResponseEntity<Serie> deleteDrive(Long id) {
+    public ResponseEntity<Serie> deleteDrive(String id) {
         Optional<Serie> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

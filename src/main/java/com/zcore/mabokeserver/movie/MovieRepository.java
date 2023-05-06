@@ -1,7 +1,6 @@
 package com.zcore.mabokeserver.movie;
 
-import org.springframework.data.repository.CrudRepository;
-
-public interface MovieRepository extends CrudRepository<Movie, Long> {
+import org.springframework.data.mongodb.repository.MongoRepository;
+public interface MovieRepository extends MongoRepository<Movie, String> {
     
 }

@@ -1,6 +1,5 @@
 package com.zcore.mabokeserver.season;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class SeasonService {
@@ -49,7 +47,7 @@ public class SeasonService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Season> findById(Long id) {
+    public ResponseEntity<Season> findById(String id) {
         Optional<Season> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -75,7 +73,7 @@ public class SeasonService {
         return null;
     }
 
-    public ResponseEntity<Season> deleteDrive(Long id) {
+    public ResponseEntity<Season> deleteDrive(String id) {
         Optional<Season> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

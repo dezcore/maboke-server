@@ -48,7 +48,7 @@ public class AwardService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Award> findById(Long id) {
+    public ResponseEntity<Award> findById(String id) {
         Optional<Award> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -75,7 +75,7 @@ public class AwardService {
         return null;
     }
 
-    public ResponseEntity<Award> deleteDrive(Long id) {
+    public ResponseEntity<Award> deleteDrive(String id) {
         Optional<Award> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

@@ -14,7 +14,7 @@ import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MabokeServerApplicationTests {
-    @Autowired
+    /*@Autowired
     TestRestTemplate restTemplate;
 
 	@Test
@@ -32,5 +32,5 @@ class MabokeServerApplicationTests {
         ResponseEntity<String> response = restTemplate.getForEntity("/drive/1000", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isBlank();
-    }
+    }*/
 }

@@ -48,7 +48,7 @@ public class ActorService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Actor> findById(Long id) {
+    public ResponseEntity<Actor> findById(String id) {
         Optional<Actor> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -73,7 +73,7 @@ public class ActorService {
         }
     }
 
-    public ResponseEntity<Actor> deleteDrive(Long id) {
+    public ResponseEntity<Actor> deleteDrive(String id) {
         Optional<Actor> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

@@ -1,7 +1,6 @@
 package com.zcore.mabokeserver.search;
 
-import org.springframework.data.repository.CrudRepository;
-
-public interface SearchRepository extends CrudRepository<Search, Long> {
+import org.springframework.data.mongodb.repository.MongoRepository;
+public interface SearchRepository extends MongoRepository<Search, String> {
     
 }

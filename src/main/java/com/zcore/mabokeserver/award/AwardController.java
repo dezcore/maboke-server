@@ -33,7 +33,7 @@ public class AwardController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Award> getById(@PathVariable Long id) {
+    public ResponseEntity<Award> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class AwardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Award> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Award> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

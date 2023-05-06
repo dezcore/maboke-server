@@ -33,5 +33,5 @@ build/
 .vscode/
 
 #envs
-.env
-maboke.env
+#.env
+#maboke.env

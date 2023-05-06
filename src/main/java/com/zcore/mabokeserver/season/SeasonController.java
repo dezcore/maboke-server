@@ -33,7 +33,7 @@ public class SeasonController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Season> getById(@PathVariable Long id) {
+    public ResponseEntity<Season> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class SeasonController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Season> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Season> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

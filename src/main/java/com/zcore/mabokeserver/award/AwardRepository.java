@@ -1,7 +1,7 @@
 package com.zcore.mabokeserver.award;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface AwardRepository extends CrudRepository<Award, Long> {
+public interface AwardRepository extends MongoRepository<Award, String> {
     
 }

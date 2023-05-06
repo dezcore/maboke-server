@@ -1,26 +1,14 @@
 package com.zcore.mabokeserver.drive;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class DriveService {
-    private DriveRepository driveRepository;
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
-    
-    public DriveService(DriveRepository driveRepository) {
-        this.driveRepository = driveRepository;
-    }
 
-    public ResponseEntity<Drive> add(Drive drive) {
+    /*public ResponseEntity<Drive> add(Drive drive) {
         URI location;
         Drive saveDrive;
         
@@ -37,12 +25,12 @@ public class DriveService {
         }
     }
 
-    public ResponseEntity<List<Drive>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
+    public ResponseEntity<List<Drive>> getDrives(Pageable pageable) {
+        Page<Drive> page = driveRepository.findAll(
            PageRequest.of(
                    pageable.getPageNumber(),
                    pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
+                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));
        //ResponseEntity.ok(page.toList());
         List<Drive> list = (List<Drive>) driveRepository.findAll(); 
         return ResponseEntity.ok(list);
@@ -82,5 +70,5 @@ public class DriveService {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
+    }*/
 }

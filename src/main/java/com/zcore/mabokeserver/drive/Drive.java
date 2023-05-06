@@ -1,7 +1,10 @@
 package com.zcore.mabokeserver.drive;
 
+
 import org.springframework.data.annotation.Id;
 
+//@Entity
+//@Table(name = "drive")
 public class Drive {
     @Id
     private Long id;
@@ -17,7 +20,7 @@ public class Drive {
         this.id = id;
         this.name = name;
     }
-
+    
     public Long getId() {
         return this.id;
     }

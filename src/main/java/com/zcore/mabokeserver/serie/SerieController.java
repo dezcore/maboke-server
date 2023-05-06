@@ -33,7 +33,7 @@ public class SerieController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Serie> getById(@PathVariable Long id) {
+    public ResponseEntity<Serie> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class SerieController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Serie> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Serie> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

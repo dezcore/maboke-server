@@ -33,7 +33,7 @@ public class DirectorController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Director> getById(@PathVariable Long id) {
+    public ResponseEntity<Director> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class DirectorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Director> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Director> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

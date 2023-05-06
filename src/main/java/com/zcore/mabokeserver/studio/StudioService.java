@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class StudioService {
@@ -20,7 +19,7 @@ public class StudioService {
         this.driveRepository = driveRepository;
     }
 
-    public ResponseEntity<Studio> add(Studio drive) {
+    public ResponseEntity<Studio> add(Studio studio) {
         URI location;
         Studio saveDrive;
 
@@ -49,7 +48,7 @@ public class StudioService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Studio> findById(Long id) {
+    public ResponseEntity<Studio> findById(String id) {
         Optional<Studio> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -60,7 +59,7 @@ public class StudioService {
     }
 
     @PutMapping
-    public ResponseEntity<Studio> updateDrive(Studio drive) {
+    public ResponseEntity<Studio> updateDrive(Studio studio) {
         /*Studio dbDrive;
         Optional<Studio> dOptional = driveRepository.findById(drive.getId());
 
@@ -75,7 +74,7 @@ public class StudioService {
         return null;
     }
 
-    public ResponseEntity<Studio> deleteDrive(Long id) {
+    public ResponseEntity<Studio> deleteDrive(String id) {
         Optional<Studio> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

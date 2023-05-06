@@ -20,12 +20,12 @@ public class MovieService {
         this.driveRepository = driveRepository;
     }
 
-    public ResponseEntity<Movie> add(Movie drive) {
+    public ResponseEntity<Movie> add(Movie movie) {
         URI location;
         Movie saveDrive;
-        
-        if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
+
+        if(movie.getVideo().getTitle() != null) {
+            saveDrive = driveRepository.save(movie);
             location = ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
                         .buildAndExpand(saveDrive.getId())
@@ -33,7 +33,7 @@ public class MovieService {
 
             return ResponseEntity.created(location).build();
         } else {
-            return  ResponseEntity.badRequest().body(drive);
+            return  ResponseEntity.badRequest().body(movie);
         }
     }
 
@@ -48,7 +48,7 @@ public class MovieService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Movie> findById(Long id) {
+    public ResponseEntity<Movie> findById(String id) {
         Optional<Movie> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -59,21 +59,21 @@ public class MovieService {
     }
 
     @PutMapping
-    public ResponseEntity<Movie> updateDrive(Movie drive) {
-        Movie dbDrive;
-        Optional<Movie> dOptional = driveRepository.findById(drive.getId());
+    public ResponseEntity<Movie> updateDrive(Movie movie) {
+        Movie dbMovie;
+        Optional<Movie> dOptional = driveRepository.findById(movie.getId());
 
         if(dOptional.isPresent()) {
-            dbDrive = dOptional.get();
-            dbDrive.setName(drive.getName());
-            driveRepository.save(dbDrive);
+            dbMovie = dOptional.get();
+            //dbMovie.setName(movie.getName());
+            driveRepository.save(dbMovie);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    public ResponseEntity<Movie> deleteDrive(Long id) {
+    public ResponseEntity<Movie> deleteDrive(String id) {
         Optional<Movie> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

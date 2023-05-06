@@ -49,7 +49,7 @@ public class CastService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<Cast> findById(Long id) {
+    public ResponseEntity<Cast> findById(String id) {
         Optional<Cast> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {
@@ -76,7 +76,7 @@ public class CastService {
         return null;
     }
 
-    public ResponseEntity<Cast> deleteDrive(Long id) {
+    public ResponseEntity<Cast> deleteDrive(String id) {
         Optional<Cast> dOptional = driveRepository.findById(id);
 
         if(dOptional.isPresent()) {

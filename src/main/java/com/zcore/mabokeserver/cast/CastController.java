@@ -33,7 +33,7 @@ public class CastController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cast> getById(@PathVariable Long id) {
+    public ResponseEntity<Cast> getById(@PathVariable String id) {
         return driveService.findById(id);
     }
 
@@ -43,7 +43,7 @@ public class CastController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Cast> deleteDrive(@PathVariable("id") Long id) {
+    public ResponseEntity<Cast> deleteDrive(@PathVariable("id") String id) {
         return driveService.deleteDrive(id);
     }
 }

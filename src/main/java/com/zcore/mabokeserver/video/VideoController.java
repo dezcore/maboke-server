@@ -15,6 +15,6 @@ public class VideoController {
     
     @GetMapping
     public Video getVideo(@RequestParam(value = "name", defaultValue = "World") String name) {
-		return new Video(counter.incrementAndGet(),  String.format(template, name));
+		return null;//new Video(counter.incrementAndGet(),  String.format(template, name));
 	}
 }
