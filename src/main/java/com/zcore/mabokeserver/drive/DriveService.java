@@ -111,7 +111,6 @@ public class DriveService {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
         ResponseEntity<String> response = restTemplate.exchange(DRIVE_ROOT_URI + "/files", HttpMethod.GET, request, String.class);
-
         //Gson gson = new Gson();
         //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
         //return driveFiles;
