@@ -1,4 +1,4 @@
-package com.actris.datavalidationrest;
+package com.zcore.mabokeserver.config;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

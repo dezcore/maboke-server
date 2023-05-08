@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
 import java.util.Collections;
@@ -38,6 +40,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class DriveService {    
@@ -47,40 +51,45 @@ public class DriveService {
     @Value("${api.google.codesecret}")
     private String CLIENT_SECRET;
 
+    private final WebClient webClient;
+    private final String clientCredentials;
+
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
 
     private static final String DRIVE_ROOT_URI = "https://www.googleapis.com/drive/v3";
     private static final String TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
+    
+    public DriveService() {
+		this.webClient = WebClient.create();
+        this.clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
+	}
+
+    public ResponseEntity<String> getAccessToken(String code, String scope) throws URISyntaxException {
+        logger.info("getAccessToken : " + code);
+        String response = null;
+        MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
+
+        bodyValues.add("code", code);
+        bodyValues.add("grant_type", "authorization_code");
+        //bodyValues.add("redirect_uri", "http://localhost:8080/oauth2/callback/google");
+        bodyValues.add("scope", scope);
+
+        response = this.webClient.post()
+        .uri(new URI(TOKEN_URI))
+        .header("Authorization", "Basic "+ this.clientCredentials)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromFormData(bodyValues))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+
+        logger.info("Response : " + response);
+
+        return ResponseEntity.ok(response);
+    }
 
 
-    //String requestUri = "https://www.googleapis.com/drive/v3/files";
-
-    /*public void printFiles(List<File> files) {
-        if(files == null || files.isEmpty()) {
-            logger.error(APPLICATION_NAME, "No files found.");
-        } else {
-            logger.info("Files : ");
-            for(File file : files) {
-                logger.info("fileName : " + file.getName() + ", fileId : " + file.getId());
-            }
-        }
-    }*/
-
-    /*public void getFiles() throws IOException {
-        FileList result ;
-
-        if(this.service != null) {
-            result = this.service.files().list()
-            .setPageSize(10)
-            .setFields("nextPageToken, files(id, name)")
-            .execute();
-
-            if(result != null)
-                printFiles(result.getFiles());
-        }
-    }*/
-
-    public String fetchToken(String code, String scope) {
+    /*public ResponseEntity<String> fetchToken(String code, String scope) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -94,18 +103,24 @@ public class DriveService {
         requestBody.add("scope", scope);
 
         HttpEntity formEntity = new HttpEntity<MultiValueMap<String, String>>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.exchange(TOKEN_URI, HttpMethod.POST, formEntity, String.class/*OauthResponse.class*/);
-        logger.info("Token : " + response.getBody());
+        ResponseEntity<Object> response = restTemplate.exchange(TOKEN_URI, HttpMethod.POST, formEntity, Object.class OauthResponse.class);
+        //logger.info("Token : " + response.getBody());
         //return response.getBody().getAccess_token();
-        return null;
-    }
+        if(response != null && response.getBody() != null){             
+            logger.info("YES");
+            logger.info(response.getBody().toString());
+        } else {
+            logger.info("NONES");
+        }
+        return null;//response;
+    }*/
     
     public ResponseEntity<String> getDriveFiles(String accessToken) {        
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", "Bearer " + accessToken);
+        headers.add("Authorization", "Bearer " + accessToken.trim());
 
         HttpEntity request = new HttpEntity(headers);
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
