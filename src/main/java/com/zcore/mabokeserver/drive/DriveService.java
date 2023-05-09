@@ -99,9 +99,10 @@ public class DriveService {
             CLIENT_ID,
             CLIENT_SECRET,
             code,
-            "http://localhost:3000/studiomaker/code");
+            "postmessage");
 
         GoogleTokenResponse token = request.execute();
+        logger.info("token : " + token.getAccessToken());
         getDriveFiles(token);
 
         return token.getAccessToken();
