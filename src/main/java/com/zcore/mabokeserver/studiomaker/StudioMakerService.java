@@ -3,7 +3,9 @@ package com.zcore.mabokeserver.studiomaker;
 
 import com.zcore.mabokeserver.drive.DriveService;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ public class StudioMakerService {
     public ResponseEntity<String> getToken(String code, String scope) {
         try {
             return service.getAccessToken(code, scope);
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | IOException | GeneralSecurityException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }

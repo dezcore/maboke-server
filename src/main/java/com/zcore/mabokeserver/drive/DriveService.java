@@ -1,38 +1,20 @@
 package com.zcore.mabokeserver.drive;
 
-
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -42,6 +24,25 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.testing.http.MockHttpTransport;
+import com.google.auth.http.HttpCredentialsAdapter;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
+
+import reactor.core.publisher.Mono;
+
+import com.google.api.services.drive.Drive;
+//import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 
 @Service
 public class DriveService {    
@@ -58,15 +59,59 @@ public class DriveService {
 
     private static final String DRIVE_ROOT_URI = "https://www.googleapis.com/drive/v3";
     private static final String TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
-    
+
     public DriveService() {
 		this.webClient = WebClient.create();
         this.clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
 	}
 
-    public ResponseEntity<String> getAccessToken(String code, String scope) throws URISyntaxException {
-        logger.info("getAccessToken : " + code);
-        String response = null;
+    public void displayFiles(FileList result) {
+        List<File> files = result.getFiles();
+        if(files == null || files.isEmpty()) {
+            logger.info("No files found.");
+        } else {
+            logger.info("Files:");
+            for(File file : files) {
+                logger.info("%s (%s)\n", file.getName(), file.getId());
+            }
+        }
+    }
+
+    public void getDriveFiles(GoogleTokenResponse token) throws IOException, GeneralSecurityException {
+        GoogleCredentials credentials = GoogleCredentials.newBuilder().setAccessToken(new AccessToken(token.getAccessToken(), null)).build();
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Drive service = new Drive.Builder(HTTP_TRANSPORT, GsonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
+        .setApplicationName("Maboke/1.0")
+        .build();
+
+        FileList result = service.files().list()
+        .setPageSize(10)
+        .setFields("nextPageToken, files(id, name)")
+        .execute();
+        displayFiles(result);
+    }
+    
+    public String test_token(String code) throws IOException, GeneralSecurityException {
+        GoogleAuthorizationCodeTokenRequest request =
+        new GoogleAuthorizationCodeTokenRequest(
+            new NetHttpTransport(),
+            new GsonFactory(),
+            CLIENT_ID,
+            CLIENT_SECRET,
+            code,
+            "http://localhost:3000/studiomaker/code");
+
+        GoogleTokenResponse token = request.execute();
+        getDriveFiles(token);
+
+        return token.getAccessToken();
+    }
+
+    public ResponseEntity<String> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
+        String token = test_token(code);
+        return ResponseEntity.ok().body(token);
+        //return fetchToken(code, scope);
+        /*Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
 
         bodyValues.add("code", code);
@@ -80,16 +125,20 @@ public class DriveService {
         .accept(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromFormData(bodyValues))
         .retrieve()
-        .bodyToMono(String.class)
-        .block();
+        .bodyToMono(TokenDTO.class)
+        .doOnSuccess(res -> {
+            logger.info(res.toString());
+        }).doOnError(e -> {
+            logger.error("error verify captcha : {}", e.getMessage());
+            //throw new InvalidCaptchaException(e.getMessage());
+        });
 
-        logger.info("Response : " + response);
-
-        return ResponseEntity.ok(response);
+        logger.info("getAccessToken *************** : %s" + response.block());
+        return ResponseEntity.ok(response.toString());*/
     }
 
 
-    /*public ResponseEntity<String> fetchToken(String code, String scope) {
+    public ResponseEntity<String> fetchToken(String code, String scope) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -102,18 +151,20 @@ public class DriveService {
         //requestBody.add("redirect_uri", "http://localhost:8080/oauth2/callback/google");
         requestBody.add("scope", scope);
 
-        HttpEntity formEntity = new HttpEntity<MultiValueMap<String, String>>(requestBody, headers);
-        ResponseEntity<Object> response = restTemplate.exchange(TOKEN_URI, HttpMethod.POST, formEntity, Object.class OauthResponse.class);
+        logger.info("clientCredentials : " + clientCredentials);
+        HttpEntity<?> formEntity = new HttpEntity<Object>(requestBody, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(TOKEN_URI, HttpMethod.POST, formEntity, Object.class);
         //logger.info("Token : " + response.getBody());
         //return response.getBody().getAccess_token();
         if(response != null && response.getBody() != null){             
             logger.info("YES");
             logger.info(response.getBody().toString());
+            return ResponseEntity.ok().body(response.getBody().toString());
         } else {
             logger.info("NONES");
+            return null;
         }
-        return null;//response;
-    }*/
+    }
     
     public ResponseEntity<String> getDriveFiles(String accessToken) {        
         RestTemplate restTemplate = new RestTemplate();
