@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.award;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +11,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/award")
 public class AwardController {
-    private final AwardService driveService;
-    //@Autowired
-    //private DriveService service;
-
-    public AwardController(AwardService service){
-        driveService = service;
-    }
-
+    @Autowired
+    private AwardService awardService;
+    
     @PostMapping
-    public ResponseEntity<Award> add(@RequestBody Award drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Award>> add(@RequestBody Award award) throws Exception {
+        return  awardService.add(award);
     }
 
     @GetMapping
-    public ResponseEntity<List<Award>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Award>> getAward() {
+        return awardService.getAward();
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<Award> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Award>> getById(@PathVariable String id) {
+        return awardService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Award> updateDrive(@RequestBody Award drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Award>> updateAward(@RequestBody Award award) {
+        return awardService.updateAward(award);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Award> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteAward(@PathVariable("id") String id) {
+        return awardService.deleteAward(id);
     }
 }

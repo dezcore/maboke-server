@@ -9,10 +9,15 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfiguration {
-
+    
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        return http.csrf().disable()
+        return http.httpBasic().disable().csrf().disable()
+        .authorizeExchange(exchanges -> 
+        exchanges.pathMatchers("/view/**").permitAll() 
+        .pathMatchers("/studiomaker/**").permitAll()
+        .anyExchange().permitAll()
+        )
         .build();
     }
 }

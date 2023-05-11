@@ -1,6 +1,7 @@
 package com.zcore.mabokeserver.search;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-public interface SearchRepository extends MongoRepository<Search, String> {
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+
+public interface SearchRepository extends ReactiveMongoRepository<Search, String> {
     
 }

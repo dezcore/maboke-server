@@ -1,6 +1,8 @@
 package com.zcore.mabokeserver.movie;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +13,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/movie")
 public class MovieController {
-    private final MovieService driveService;
-    //@Autowired
-    //private DriveService service;
-
-    public MovieController(MovieService service){
-        driveService = service;
-    }
-
+    @Autowired
+    private MovieService movieService;
+    
     @PostMapping
-    public ResponseEntity<Movie> add(@RequestBody Movie drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Movie>> add(@RequestBody Movie movie) throws Exception {
+        return movieService.add(movie);
     }
 
     @GetMapping
-    public ResponseEntity<List<Movie>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Movie>> getMovie() {
+        return movieService.getMovie();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Movie>> getById(@PathVariable String id) {
+        return movieService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Movie> updateDrive(@RequestBody Movie drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Movie>> updateMovie(@RequestBody Movie movie) {
+        return movieService.updateMovie(movie);
     }
-
+    
     @DeleteMapping("/{id}")
-    public ResponseEntity<Movie> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteMovie(@PathVariable("id") String id) {
+        return movieService.deleteMovie(id);
     }
 }

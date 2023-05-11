@@ -95,10 +95,10 @@ public class DriveService {
         GoogleAuthorizationCodeTokenRequest request =
         new GoogleAuthorizationCodeTokenRequest(
             new NetHttpTransport(),
-            new GsonFactory(),
-            CLIENT_ID,
-            CLIENT_SECRET,
-            code,
+            GsonFactory.getDefaultInstance(),
+            CLIENT_ID.trim(),
+            CLIENT_SECRET.trim(),
+            code.trim(),
             "postmessage");
 
         GoogleTokenResponse token = request.execute();

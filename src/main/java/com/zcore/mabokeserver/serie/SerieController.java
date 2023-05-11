@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.serie;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +11,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/serie")
 public class SerieController {
-    private final SerieService driveService;
-    //@Autowired
-    //private DriveService service;
-    
-    public SerieController(SerieService service){
-        driveService = service;
-    }
+    @Autowired
+    private SerieService serieService;
 
     @PostMapping
-    public ResponseEntity<Serie> add(@RequestBody Serie drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Serie>> add(@RequestBody Serie serie) throws Exception {
+        return  serieService.add(serie);
     }
 
     @GetMapping
-    public ResponseEntity<List<Serie>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Serie>> getSeries() {
+        return serieService.getSerie();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Serie> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Serie>> getById(@PathVariable String id) {
+        return serieService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Serie> updateDrive(@RequestBody Serie drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Serie>> updateView(@RequestBody Serie serie) {
+        return serieService.updateSerie(serie);
     }
-
+    
     @DeleteMapping("/{id}")
-    public ResponseEntity<Serie> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteView(@PathVariable("id") String id) {
+        return serieService.deleteSerie(id);
     }
 }

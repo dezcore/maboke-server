@@ -2,7 +2,6 @@ package com.zcore.mabokeserver.studiomaker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,12 +37,12 @@ public class StudioMakerController {
     }*/
 
     @PostMapping
-    public ResponseEntity<String> add(@RequestBody Token token) throws Exception {
+    public ResponseEntity<String> add(@RequestBody GToken token) throws Exception {
         return service.getToken(token.getCode(), token.getScope());
     }
     
     @GetMapping(value = "/files")
-    public ResponseEntity<String> getFiles(@RequestBody Token token) {
+    public ResponseEntity<String> getFiles(@RequestBody GToken token) {
         return service.getFiles(token.getAccessToken());
     }
 }

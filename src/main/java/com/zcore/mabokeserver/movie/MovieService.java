@@ -1,86 +1,52 @@
 package com.zcore.mabokeserver.movie;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class MovieService {
-    private MovieRepository driveRepository;
+    @Autowired
+    private MovieRepository movieRepository;
     private Logger logger = LoggerFactory.getLogger(MovieService.class);
-    
-    public MovieService(MovieRepository driveRepository) {
-        this.driveRepository = driveRepository;
+
+    public Mono<ResponseEntity<Movie>> add(Movie director) {
+        return movieRepository.save(director).map(director1 -> new ResponseEntity<>(director1, HttpStatus.ACCEPTED))
+        .defaultIfEmpty(new ResponseEntity<>(director, HttpStatus.NOT_ACCEPTABLE));
     }
 
-    public ResponseEntity<Movie> add(Movie movie) {
-        URI location;
-        Movie saveDrive;
-
-        if(movie.getVideo().getTitle() != null) {
-            saveDrive = driveRepository.save(movie);
-            location = ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(saveDrive.getId())
-                        .toUri();
-
-            return ResponseEntity.created(location).build();
-        } else {
-            return  ResponseEntity.badRequest().body(movie);
-        }
+    public Flux<ResponseEntity<Movie>> getMovie(/*Pageable pageable*/) {
+        return movieRepository.findAll()
+        .map(movies -> new ResponseEntity<>(movies, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<List<Movie>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
-           PageRequest.of(
-                   pageable.getPageNumber(),
-                   pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
-       //ResponseEntity.ok(page.toList());
-        List<Movie> list = (List<Movie>) driveRepository.findAll(); 
-        return ResponseEntity.ok(list);
-    }
-
-    public ResponseEntity<Movie> findById(String id) {
-        Optional<Movie> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            return ResponseEntity.ok(dOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<ResponseEntity<Movie>> findById(String id) {
+        return movieRepository.findById(id)
+        .map(movie -> new ResponseEntity<>(movie, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping
-    public ResponseEntity<Movie> updateDrive(Movie movie) {
-        Movie dbMovie;
-        Optional<Movie> dOptional = driveRepository.findById(movie.getId());
+    public Mono<ResponseEntity<Movie>> updateMovie(Movie movie) {
+        String id = movie.getId();
 
-        if(dOptional.isPresent()) {
-            dbMovie = dOptional.get();
-            //dbMovie.setName(movie.getName());
-            driveRepository.save(dbMovie);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return movieRepository.findById(movie.getId())
+            .flatMap(movie1 -> {
+                movie.setId(id);
+                return movieRepository.save(movie)
+            .map(movie2 -> new ResponseEntity<>(movie2, HttpStatus.ACCEPTED));
+        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    public ResponseEntity<Movie> deleteDrive(String id) {
-        Optional<Movie> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            driveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    
+    public Mono<Void> deleteMovie(String id) {
+        return movieRepository.deleteById(id);
     }
 }

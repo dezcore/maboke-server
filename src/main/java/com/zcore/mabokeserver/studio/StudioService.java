@@ -1,87 +1,52 @@
 package com.zcore.mabokeserver.studio;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @Service
 public class StudioService {
-    private StudioRepository driveRepository;
+    @Autowired
+    private StudioRepository studioRepository;
     private Logger logger = LoggerFactory.getLogger(StudioService.class);
-    
-    public StudioService(StudioRepository driveRepository) {
-        this.driveRepository = driveRepository;
+
+    public Mono<ResponseEntity<Studio>> add(Studio studio) {
+        return studioRepository.save(studio).map(studio1 -> new ResponseEntity<>(studio1, HttpStatus.ACCEPTED))
+        .defaultIfEmpty(new ResponseEntity<>(studio, HttpStatus.NOT_ACCEPTABLE));
     }
 
-    public ResponseEntity<Studio> add(Studio studio) {
-        URI location;
-        Studio saveDrive;
-
-        /*if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
-            location = ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(saveDrive.getId())
-                        .toUri();
-
-            return ResponseEntity.created(location).build();
-        } else {
-            return  ResponseEntity.badRequest().body(drive);
-        }*/
-        return null;
+    public Flux<ResponseEntity<Studio>> getStudios(/*Pageable pageable*/) {
+        return studioRepository.findAll()
+        .map(studios -> new ResponseEntity<>(studios, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<List<Studio>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
-           PageRequest.of(
-                   pageable.getPageNumber(),
-                   pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
-       //ResponseEntity.ok(page.toList());
-        List<Studio> list = (List<Studio>) driveRepository.findAll(); 
-        return ResponseEntity.ok(list);
-    }
-
-    public ResponseEntity<Studio> findById(String id) {
-        Optional<Studio> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            return ResponseEntity.ok(dOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<ResponseEntity<Studio>>  findById(String id) {
+        return studioRepository.findById(id)
+        .map(studio -> new ResponseEntity<>(studio, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping
-    public ResponseEntity<Studio> updateDrive(Studio studio) {
-        /*Studio dbDrive;
-        Optional<Studio> dOptional = driveRepository.findById(drive.getId());
+    public Mono<ResponseEntity<Studio>> updateStudio(Studio studio) {
+        String id = studio.getId();
 
-        if(dOptional.isPresent()) {
-            dbDrive = dOptional.get();
-            //dbDrive.setName(drive.getName());
-            driveRepository.save(dbDrive);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }*/
-        return null;
+        return studioRepository.findById(id)
+            .flatMap(studio1 -> {
+                studio.setId(id);
+                return studioRepository.save(studio)
+            .map(studio2 -> new ResponseEntity<>(studio2, HttpStatus.ACCEPTED));
+        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<Studio> deleteDrive(String id) {
-        Optional<Studio> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            driveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<Void> deleteStudio(String id) {
+        return studioRepository.deleteById(id);
     }
 }

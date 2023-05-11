@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.season;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +11,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zcore.mabokeserver.serie.Serie;
+import com.zcore.mabokeserver.serie.SerieService;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/season")
 public class SeasonController {
-    private final SeasonService driveService;
-    //@Autowired
-    //private DriveService service;
+    @Autowired
+    private SerieService serieService;
     
-    public SeasonController(SeasonService service){
-        driveService = service;
-    }
-
     @PostMapping
-    public ResponseEntity<Season> add(@RequestBody Season drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Serie>> add(@RequestBody Serie serie) throws Exception {
+        return serieService.add(serie);
     }
 
     @GetMapping
-    public ResponseEntity<List<Season>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Serie>> getSerie() {
+        return serieService.getSerie();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Season> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Serie>> getById(@PathVariable String id) {
+        return serieService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Season> updateDrive(@RequestBody Season drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Serie>> updateSerie(@RequestBody Serie serie) {
+        return serieService.updateSerie(serie);
     }
-
+    
     @DeleteMapping("/{id}")
-    public ResponseEntity<Season> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteSerie(@PathVariable("id") String id) {
+        return serieService.deleteSerie(id);
     }
 }

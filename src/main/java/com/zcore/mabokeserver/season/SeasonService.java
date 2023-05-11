@@ -1,86 +1,53 @@
 package com.zcore.mabokeserver.season;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class SeasonService {
-    private SeasonRepository driveRepository;
+    @Autowired
+    private SeasonRepository seasonRepository;
     private Logger logger = LoggerFactory.getLogger(SeasonService.class);
+
+    public Mono<ResponseEntity<Season>> add(Season season) {
+        return seasonRepository.save(season).map(season1 -> new ResponseEntity<>(season1, HttpStatus.ACCEPTED))
+        .defaultIfEmpty(new ResponseEntity<>(season, HttpStatus.NOT_ACCEPTABLE));
+    }
+
+    public Flux<ResponseEntity<Season>> getSeason(/*Pageable pageable*/) {
+        return seasonRepository.findAll()
+        .map(seasons -> new ResponseEntity<>(seasons, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    public Mono<ResponseEntity<Season>> findById(String id) {
+        return seasonRepository.findById(id)
+        .map(season -> new ResponseEntity<>(season, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
     
-    public SeasonService(SeasonRepository driveRepository) {
-        this.driveRepository = driveRepository;
-    }
-
-    public ResponseEntity<Season> add(Season drive) {
-        /*URI location;
-        Season saveDrive;
-        
-        if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
-            location = ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(saveDrive.getId())
-                        .toUri();
-
-            return ResponseEntity.created(location).build();
-        } else {
-            return  ResponseEntity.badRequest().body(drive);
-        }*/
-        return null;
-    }
-
-    public ResponseEntity<List<Season>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
-           PageRequest.of(
-                   pageable.getPageNumber(),
-                   pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
-       //ResponseEntity.ok(page.toList());
-        List<Season> list = (List<Season>) driveRepository.findAll(); 
-        return ResponseEntity.ok(list);
-    }
-
-    public ResponseEntity<Season> findById(String id) {
-        Optional<Season> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            return ResponseEntity.ok(dOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @PutMapping
-    public ResponseEntity<Season> updateDrive(Season drive) {
-        /*Season dbDrive;
-        Optional<Season> dOptional = driveRepository.findById(drive.getId());
+    public Mono<ResponseEntity<Season>> updateSeason(Season season) {
+        String id = season.getId();
 
-        if(dOptional.isPresent()) {
-            dbDrive = dOptional.get();
-            dbDrive.setName(drive.getName());
-            driveRepository.save(dbDrive);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }*/
-        return null;
+        return seasonRepository.findById(season.getId())
+            .flatMap(season1 -> {
+                season.setId(id);
+                return seasonRepository.save(season)
+            .map(season2 -> new ResponseEntity<>(season2, HttpStatus.ACCEPTED));
+        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    public ResponseEntity<Season> deleteDrive(String id) {
-        Optional<Season> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            driveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    
+    public Mono<Void> deleteSeason(String id) {
+        return seasonRepository.deleteById(id);
     }
 }

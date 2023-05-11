@@ -1,7 +1,5 @@
 package com.zcore.mabokeserver.view;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/view")
 public class ViewController {
@@ -20,27 +21,27 @@ public class ViewController {
     private ViewService viewService;
 
     @PostMapping
-    public ResponseEntity<View> add(@RequestBody View drive) throws Exception {
+    public Mono<ResponseEntity<View>> add(@RequestBody View drive) throws Exception {
         return  viewService.add(drive);
     }
 
     @GetMapping
-    public ResponseEntity<List<View>> getDrives() {
+    public  Flux<ResponseEntity<View>> getDrives() {
         return viewService.getView();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<View> getById(@PathVariable String id) {
+    public Mono<ResponseEntity<View>> getById(@PathVariable String id) {
         return viewService.findById(id);
     }
-    
+
     @PutMapping
-    public ResponseEntity<View> updateView(@RequestBody View drive) {
+    public Mono<ResponseEntity<View>> updateView(@RequestBody View drive) {
         return viewService.updateView(drive);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<View> deleteView(@PathVariable("id") String id) {
+    public  Mono<Void> deleteView(@PathVariable("id") String id) {
         return viewService.deleteView(id);
     }
 }

@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.studio;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +11,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/studio")
 public class StudioController {
-    private final StudioService driveService;
-    //@Autowired
-    //private DriveService service;
-
-    public StudioController(StudioService service){
-        driveService = service;
-    }
+    @Autowired
+    private StudioService studioService;
 
     @PostMapping
-    public ResponseEntity<Studio> add(@RequestBody Studio drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Studio>> add(@RequestBody Studio drive) throws Exception {
+        return  studioService.add(drive);
     }
 
     @GetMapping
-    public ResponseEntity<List<Studio>> getDrives() {
-        return driveService.getDrives();
+    public Flux<ResponseEntity<Studio>>  getStudio() {
+        return studioService.getStudios();
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<Studio> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Studio>> getById(@PathVariable String id) {
+        return studioService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Studio> updateDrive(@RequestBody Studio drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Studio>> updateStudio(@RequestBody Studio studio) {
+        return studioService.updateStudio(studio);
     }
-
+    
     @DeleteMapping("/{id}")
-    public ResponseEntity<Studio> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public Mono<Void> deleteStudio(@PathVariable("id") String id) {
+        return studioService.deleteStudio(id);
     }
 }

@@ -1,86 +1,52 @@
 package com.zcore.mabokeserver.director;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class DirectorService {
-    private DirectorRepository driveRepository;
+    @Autowired
+    private DirectorRepository directorRepository;
     private Logger logger = LoggerFactory.getLogger(DirectorService.class);
-    
-    public DirectorService(DirectorRepository driveRepository) {
-        this.driveRepository = driveRepository;
+
+    public Mono<ResponseEntity<Director>> add(Director director) {
+        return directorRepository.save(director).map(director1 -> new ResponseEntity<>(director1, HttpStatus.ACCEPTED))
+        .defaultIfEmpty(new ResponseEntity<>(director, HttpStatus.NOT_ACCEPTABLE));
     }
 
-    public ResponseEntity<Director> add(Director drive) {
-        URI location;
-        Director saveDrive;
-
-        if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
-            location = ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(saveDrive.getId())
-                        .toUri();
-
-            return ResponseEntity.created(location).build();
-        } else {
-            return  ResponseEntity.badRequest().body(drive);
-        }
+    public Flux<ResponseEntity<Director>> getDirector(/*Pageable pageable*/) {
+        return directorRepository.findAll()
+        .map(directors -> new ResponseEntity<>(directors, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<List<Director>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
-           PageRequest.of(
-                   pageable.getPageNumber(),
-                   pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
-       //ResponseEntity.ok(page.toList());
-        List<Director> list = (List<Director>) driveRepository.findAll(); 
-        return ResponseEntity.ok(list);
-    }
-
-    public ResponseEntity<Director> findById(String id) {
-        Optional<Director> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            return ResponseEntity.ok(dOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<ResponseEntity<Director>> findById(String id) {
+        return directorRepository.findById(id)
+        .map(director -> new ResponseEntity<>(director, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping
-    public ResponseEntity<Director> updateDrive(Director drive) {
-        Director dbDrive;
-        Optional<Director> dOptional = driveRepository.findById(drive.getId());
+    public Mono<ResponseEntity<Director>> updateDirector(Director director) {
+        String id = director.getId();
 
-        if(dOptional.isPresent()) {
-            dbDrive = dOptional.get();
-            dbDrive.setName(drive.getName());
-            driveRepository.save(dbDrive);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return directorRepository.findById(director.getId())
+            .flatMap(director1 -> {
+                director.setId(id);
+                return directorRepository.save(director)
+            .map(director2 -> new ResponseEntity<>(director2, HttpStatus.ACCEPTED));
+        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-    public ResponseEntity<Director> deleteDrive(String id) {
-        Optional<Director> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            driveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    
+    public Mono<Void> deleteDirector(String id) {
+        return directorRepository.deleteById(id);
     }
 }

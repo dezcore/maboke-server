@@ -1,6 +1,8 @@
 package com.zcore.mabokeserver.cast;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +13,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/cast")
 public class CastController {
-    private final CastService driveService;
-    //@Autowired
-    //private DriveService service;
-
-    public CastController(CastService service){
-        driveService = service;
-    }
-
+    @Autowired
+    private CastService castService;
+    
     @PostMapping
-    public ResponseEntity<Cast> add(@RequestBody Cast drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Cast>> add(@RequestBody Cast cast) throws Exception {
+        return  castService.add(cast);
     }
 
     @GetMapping
-    public ResponseEntity<List<Cast>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Cast>> getCast() {
+        return castService.getCast();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cast> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Cast>> getById(@PathVariable String id) {
+        return castService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Cast> updateDrive(@RequestBody Cast drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Cast>> updateAward(@RequestBody Cast cast) {
+        return castService.updateCast(cast);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Cast> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteCast(@PathVariable("id") String id) {
+        return castService.deleteCast(id);
     }
 }

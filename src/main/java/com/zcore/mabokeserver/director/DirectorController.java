@@ -1,6 +1,8 @@
 package com.zcore.mabokeserver.director;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,39 +13,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/director")
 public class DirectorController {
-    private final DirectorService driveService;
-    //@Autowired
-    //private DriveService service;
-
-    public DirectorController(DirectorService service){
-        driveService = service;
-    }
-
+    @Autowired
+    private DirectorService directorService;
+    
     @PostMapping
-    public ResponseEntity<Director> add(@RequestBody Director drive) throws Exception {
-        return  driveService.add(drive);
+    public Mono<ResponseEntity<Director>> add(@RequestBody Director director) throws Exception {
+        return  directorService.add(director);
     }
 
     @GetMapping
-    public ResponseEntity<List<Director>> getDrives() {
-        return driveService.getDrives();
+    public  Flux<ResponseEntity<Director>> getDirector() {
+        return directorService.getDirector();
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<Director> getById(@PathVariable String id) {
-        return driveService.findById(id);
+    public Mono<ResponseEntity<Director>> getById(@PathVariable String id) {
+        return directorService.findById(id);
     }
 
     @PutMapping
-    public ResponseEntity<Director> updateDrive(@RequestBody Director drive) {
-        return driveService.updateDrive(drive);
+    public Mono<ResponseEntity<Director>> updateDirector(@RequestBody Director director) {
+        return directorService.updateDirector(director);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Director> deleteDrive(@PathVariable("id") String id) {
-        return driveService.deleteDrive(id);
+    public  Mono<Void> deleteDirector(@PathVariable("id") String id) {
+        return directorService.deleteDirector(id);
     }
 }

@@ -1,87 +1,52 @@
 package com.zcore.mabokeserver.cast;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @Service
 public class CastService {
-    private CastRepository driveRepository;
+    @Autowired
+    private CastRepository castRepository;
     private Logger logger = LoggerFactory.getLogger(CastService.class);
     
-    public CastService(CastRepository driveRepository) {
-        this.driveRepository = driveRepository;
+    public Mono<ResponseEntity<Cast>> add(Cast cast) {
+        return castRepository.save(cast).map(cast1 -> new ResponseEntity<>(cast1, HttpStatus.ACCEPTED))
+        .defaultIfEmpty(new ResponseEntity<>(cast, HttpStatus.NOT_ACCEPTABLE));
     }
 
-    public ResponseEntity<Cast> add(Cast drive) {
-        /*URI location;
-        Cast saveDrive;
-        
-        if(drive.getName() != null) {
-            saveDrive = driveRepository.save(drive);
-            location = ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(saveDrive.getId())
-                        .toUri();
-
-            return ResponseEntity.created(location).build();
-        } else {
-            return  ResponseEntity.badRequest().body(drive);
-        }*/
-        return null;
+    public Flux<ResponseEntity<Cast>> getCast(/*Pageable pageable*/) {
+        return castRepository.findAll()
+        .map(cast -> new ResponseEntity<>(cast, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<List<Cast>> getDrives(/*Pageable pageable*/) {
-        /*Page<Drive> page = driveRepository.findAll(
-           PageRequest.of(
-                   pageable.getPageNumber(),
-                   pageable.getPageSize(),
-                   pageable.getSortOr(Sort.by(Sort.Direction.DESC, "amount"))));*/
-       //ResponseEntity.ok(page.toList());
-        List<Cast> list = (List<Cast>) driveRepository.findAll(); 
-        return ResponseEntity.ok(list);
-    }
-
-    public ResponseEntity<Cast> findById(String id) {
-        Optional<Cast> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            return ResponseEntity.ok(dOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<ResponseEntity<Cast>> findById(String id) {
+        return castRepository.findById(id)
+        .map(cast -> new ResponseEntity<>(cast, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping
-    public ResponseEntity<Cast> updateDrive(Cast drive) {
-        /*Cast dbDrive;
-        Optional<Cast> dOptional = driveRepository.findById(drive.getId());
+    public Mono<ResponseEntity<Cast>> updateCast(Cast cast) {
+        String id = cast.getId();
 
-        if(dOptional.isPresent()) {
-            dbDrive = dOptional.get();
-            dbDrive.setName(drive.getName());
-            driveRepository.save(dbDrive);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }*/
-
-        return null;
+        return castRepository.findById(cast.getId())
+            .flatMap(cast1 -> {
+                cast.setId(id);
+                return castRepository.save(cast)
+            .map(cast2 -> new ResponseEntity<>(cast2, HttpStatus.ACCEPTED));
+        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<Cast> deleteDrive(String id) {
-        Optional<Cast> dOptional = driveRepository.findById(id);
-
-        if(dOptional.isPresent()) {
-            driveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<Void> deleteCast(String id) {
+        return castRepository.deleteById(id);
     }
 }

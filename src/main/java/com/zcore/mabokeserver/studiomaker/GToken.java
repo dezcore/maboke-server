@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.studiomaker;
 
-public class Token {
+public class GToken {
     private String code;
     private String scope;
     private String accessToken;
