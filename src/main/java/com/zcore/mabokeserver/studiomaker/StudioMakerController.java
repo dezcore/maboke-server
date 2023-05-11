@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
+
+import reactor.core.publisher.Mono;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +41,7 @@ public class StudioMakerController {
     }*/
 
     @PostMapping
-    public ResponseEntity<String> add(@RequestBody GToken token) throws Exception {
+    public Mono<TokenDTO> add(@RequestBody GToken token) throws Exception {
         return service.getToken(token.getCode(), token.getScope());
     }
     

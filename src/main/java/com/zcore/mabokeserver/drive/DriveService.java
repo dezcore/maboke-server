@@ -108,11 +108,12 @@ public class DriveService {
         return token.getAccessToken();
     }
 
-    public ResponseEntity<String> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
-        String token = test_token(code);
-        return ResponseEntity.ok().body(token);
+    public Mono<TokenDTO> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
+       // String token = test_token(code);
+        //return ResponseEntity.ok().body(token);
         //return fetchToken(code, scope);
-        /*Mono<TokenDTO> response = null;
+        
+        Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
 
         bodyValues.add("code", code);
@@ -134,8 +135,7 @@ public class DriveService {
             //throw new InvalidCaptchaException(e.getMessage());
         });
 
-        logger.info("getAccessToken *************** : %s" + response.block());
-        return ResponseEntity.ok(response.toString());*/
+        return response;
     }
 
 

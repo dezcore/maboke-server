@@ -2,6 +2,9 @@ package com.zcore.mabokeserver.studiomaker;
 
 
 import com.zcore.mabokeserver.drive.DriveService;
+import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
+
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -19,12 +22,12 @@ public class StudioMakerService {
     private DriveService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
 
-    public ResponseEntity<String> getToken(String code, String scope) {
+    public Mono<TokenDTO> getToken(String code, String scope) {
         try {
             return service.getAccessToken(code, scope);
         } catch (URISyntaxException | IOException | GeneralSecurityException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return null;//ResponseEntity.badRequest().build();
         }
     }
 
