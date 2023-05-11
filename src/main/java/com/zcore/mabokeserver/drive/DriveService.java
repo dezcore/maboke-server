@@ -37,6 +37,8 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import com.google.api.services.drive.Drive;
@@ -44,6 +46,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class DriveService {    
     @Value("${api.google.clienid}")
@@ -52,18 +56,13 @@ public class DriveService {
     @Value("${api.google.codesecret}")
     private String CLIENT_SECRET;
 
-    private final WebClient webClient;
-    private final String clientCredentials;
+    private final WebClient.Builder webclientBuilder;
+
 
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
 
     private static final String DRIVE_ROOT_URI = "https://www.googleapis.com/drive/v3";
     private static final String TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
-
-    public DriveService() {
-		this.webClient = WebClient.create();
-        this.clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
-	}
 
     public void displayFiles(FileList result) {
         List<File> files = result.getFiles();
@@ -108,22 +107,41 @@ public class DriveService {
         return token.getAccessToken();
     }
 
-    public Mono<TokenDTO> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
+    public Mono<String> testGet() {
+        log.info("testGet");
+        Mono<String> response = WebClient.create("https://httpbin.org")
+            .get()
+            .uri("/get")
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnSuccess(res -> {
+                logger.info(res.toString());
+            }).doOnError(e -> {
+                logger.error("error testGet : {}", e.getMessage());
+                //throw new InvalidCaptchaException(e.getMessage());
+            });
+
+           return response;
+    }
+
+    public Mono<String> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
+        return testGet();
        // String token = test_token(code);
         //return ResponseEntity.ok().body(token);
         //return fetchToken(code, scope);
         
-        Mono<TokenDTO> response = null;
+        /*Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
+        String clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
 
         bodyValues.add("code", code);
         bodyValues.add("grant_type", "authorization_code");
         //bodyValues.add("redirect_uri", "http://localhost:8080/oauth2/callback/google");
         bodyValues.add("scope", scope);
 
-        response = this.webClient.post()
+        response = webclientBuilder.build().post()
         .uri(new URI(TOKEN_URI))
-        .header("Authorization", "Basic "+ this.clientCredentials)
+        .header("Authorization", "Basic "+ clientCredentials)
         .accept(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromFormData(bodyValues))
         .retrieve()
@@ -135,38 +153,10 @@ public class DriveService {
             //throw new InvalidCaptchaException(e.getMessage());
         });
 
-        return response;
+        return response;*/
+        return null;
     }
 
-
-    public ResponseEntity<String> fetchToken(String code, String scope) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        String clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
-        headers.add("Authorization", "Basic "+clientCredentials);
-
-        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-        requestBody.add("code", code);
-        requestBody.add("grant_type", "authorization_code");
-        //requestBody.add("redirect_uri", "http://localhost:8080/oauth2/callback/google");
-        requestBody.add("scope", scope);
-
-        logger.info("clientCredentials : " + clientCredentials);
-        HttpEntity<?> formEntity = new HttpEntity<Object>(requestBody, headers);
-        ResponseEntity<Object> response = restTemplate.exchange(TOKEN_URI, HttpMethod.POST, formEntity, Object.class);
-        //logger.info("Token : " + response.getBody());
-        //return response.getBody().getAccess_token();
-        if(response != null && response.getBody() != null){             
-            logger.info("YES");
-            logger.info(response.getBody().toString());
-            return ResponseEntity.ok().body(response.getBody().toString());
-        } else {
-            logger.info("NONES");
-            return null;
-        }
-    }
-    
     public ResponseEntity<String> getDriveFiles(String accessToken) {        
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

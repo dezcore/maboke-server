@@ -22,7 +22,7 @@ public class StudioMakerService {
     private DriveService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
 
-    public Mono<TokenDTO> getToken(String code, String scope) {
+    public Mono<String> getToken(String code, String scope) {
         try {
             return service.getAccessToken(code, scope);
         } catch (URISyntaxException | IOException | GeneralSecurityException e) {
