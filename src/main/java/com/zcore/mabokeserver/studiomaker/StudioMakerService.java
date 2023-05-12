@@ -21,8 +21,12 @@ public class StudioMakerService {
     @Autowired
     private DriveService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
+    
+    public Mono<String> getTest() {
+        return service.testGet();
+    }
 
-    public Mono<String> getToken(String code, String scope) {
+    public Mono<TokenDTO> getToken(String code, String scope) {
         try {
             return service.getAccessToken(code, scope);
         } catch (URISyntaxException | IOException | GeneralSecurityException e) {

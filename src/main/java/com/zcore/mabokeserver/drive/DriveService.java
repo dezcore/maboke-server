@@ -58,11 +58,9 @@ public class DriveService {
 
     private final WebClient.Builder webclientBuilder;
 
-
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
 
     private static final String DRIVE_ROOT_URI = "https://www.googleapis.com/drive/v3";
-    private static final String TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
 
     public void displayFiles(FileList result) {
         List<File> files = result.getFiles();
@@ -89,7 +87,24 @@ public class DriveService {
         .execute();
         displayFiles(result);
     }
-    
+
+    public ResponseEntity<String> getDriveFiles(String accessToken) {        
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", "Bearer " + accessToken.trim());
+
+        HttpEntity request = new HttpEntity(headers);
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
+        ResponseEntity<String> response = restTemplate.exchange(DRIVE_ROOT_URI + "/files", HttpMethod.GET, request, String.class);
+        //Gson gson = new Gson();
+        //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
+        //return driveFiles;
+        return response;
+    }
+
     public String test_token(String code) throws IOException, GeneralSecurityException {
         GoogleAuthorizationCodeTokenRequest request =
         new GoogleAuthorizationCodeTokenRequest(
@@ -108,7 +123,6 @@ public class DriveService {
     }
 
     public Mono<String> testGet() {
-        log.info("testGet");
         Mono<String> response = WebClient.create("https://httpbin.org")
             .get()
             .uri("/get")
@@ -120,28 +134,21 @@ public class DriveService {
                 logger.error("error testGet : {}", e.getMessage());
                 //throw new InvalidCaptchaException(e.getMessage());
             });
-
            return response;
     }
 
-    public Mono<String> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
-        return testGet();
-       // String token = test_token(code);
-        //return ResponseEntity.ok().body(token);
-        //return fetchToken(code, scope);
-        
-        /*Mono<TokenDTO> response = null;
+    public Mono<TokenDTO> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
+        Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
-        String clientCredentials = Base64.getEncoder().encodeToString((CLIENT_ID+":"+CLIENT_SECRET).getBytes());
 
+        bodyValues.add("client_id", CLIENT_ID);
+        bodyValues.add("client_secret", CLIENT_SECRET);
         bodyValues.add("code", code);
         bodyValues.add("grant_type", "authorization_code");
-        //bodyValues.add("redirect_uri", "http://localhost:8080/oauth2/callback/google");
-        bodyValues.add("scope", scope);
+        bodyValues.add("redirect_uri", "postmessage");
 
-        response = webclientBuilder.build().post()
-        .uri(new URI(TOKEN_URI))
-        .header("Authorization", "Basic "+ clientCredentials)
+        response = WebClient.create("https://www.googleapis.com").post()
+        .uri("/oauth2/v4/token")
         .accept(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromFormData(bodyValues))
         .retrieve()
@@ -153,24 +160,31 @@ public class DriveService {
             //throw new InvalidCaptchaException(e.getMessage());
         });
 
-        return response;*/
-        return null;
+        return response;
     }
 
-    public ResponseEntity<String> getDriveFiles(String accessToken) {        
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", "Bearer " + accessToken.trim());
+    public Mono<TokenDTO> refreshAccessToken(String refresh_token) throws URISyntaxException, IOException, GeneralSecurityException {
+        Mono<TokenDTO> response = null;
+        MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
 
-        HttpEntity request = new HttpEntity(headers);
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
-        ResponseEntity<String> response = restTemplate.exchange(DRIVE_ROOT_URI + "/files", HttpMethod.GET, request, String.class);
-        //Gson gson = new Gson();
-        //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
-        //return driveFiles;
+        bodyValues.add("client_id", CLIENT_ID);
+        bodyValues.add("client_secret", CLIENT_SECRET);
+        bodyValues.add("refresh_token", refresh_token);
+        bodyValues.add("grant_type", "refresh_token");
+
+        response = WebClient.create("https://www.googleapis.com").post()
+        .uri("/oauth2/v4/token")
+        .accept(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromFormData(bodyValues))
+        .retrieve()
+        .bodyToMono(TokenDTO.class)
+        .doOnSuccess(res -> {
+            logger.info(res.toString());
+        }).doOnError(e -> {
+            logger.error("error verify captcha : {}", e.getMessage());
+            //throw new InvalidCaptchaException(e.getMessage());
+        });
+
         return response;
     }
 }

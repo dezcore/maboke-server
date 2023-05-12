@@ -25,8 +25,13 @@ public class StudioMakerController {
     private StudioMakerService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
 
+    @GetMapping
+    public Mono<String> getTest() {
+        return service.getTest();
+    }
+
     @PostMapping
-    public Mono<String>  add(@RequestBody GToken token) throws Exception {
+    public Mono<TokenDTO> add(@RequestBody GToken token) throws Exception {
         return service.getToken(token.getCode(), token.getScope());
     }
 
