@@ -1,52 +1,37 @@
-package com.zcore.mabokeserver.drive;
+package com.zcore.mabokeserver.google;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-import java.util.Base64;
 import java.util.List;
 
-import org.apache.commons.lang3.ObjectUtils.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import com.google.api.services.drive.Drive;
-//import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DriveService {    
@@ -55,12 +40,8 @@ public class DriveService {
 
     @Value("${api.google.codesecret}")
     private String CLIENT_SECRET;
-
-    private final WebClient.Builder webclientBuilder;
-
+    
     private Logger logger = LoggerFactory.getLogger(DriveService.class);
-
-    private static final String DRIVE_ROOT_URI = "https://www.googleapis.com/drive/v3";
 
     public void displayFiles(FileList result) {
         List<File> files = result.getFiles();
@@ -88,24 +69,62 @@ public class DriveService {
         displayFiles(result);
     }
 
-    public ResponseEntity<String> getDriveFiles(String accessToken) {        
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Authorization", "Bearer " + accessToken.trim());
+    public Mono<String> getFiles(String url, String uri, String access_token) {
+        //String url =  "https://www.googleapis.com";
+        //String uri = "/drive/v3/files";
+        Mono<String> response = WebClient.create(url)
+            .get()
+            .uri(uri)
+            //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
+            //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            //.header("Authorization",  "Bearer " + access_token.trim())
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnSuccess(res -> {
+                logger.info(res.toString());
+            }).doOnError(e -> {
+                logger.error("error testGet : {}", e.getMessage());
+                //throw new InvalidCaptchaException(e.getMessage());
+            });
+            //Gson gson = new Gson();
+            //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
+           return response;
+    }
 
-        HttpEntity request = new HttpEntity(headers);
-        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
-        restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
-        ResponseEntity<String> response = restTemplate.exchange(DRIVE_ROOT_URI + "/files", HttpMethod.GET, request, String.class);
-        //Gson gson = new Gson();
-        //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
-        //return driveFiles;
+    public Mono<TokenDTO> postRequest(MultiValueMap<String, String> bodyValues, String url, String uri) throws URISyntaxException, IOException, GeneralSecurityException {
+        Mono<TokenDTO> response = null;
+
+        response = WebClient.create(url).post()
+        .uri(uri)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromFormData(bodyValues))
+        .retrieve()
+        .bodyToMono(TokenDTO.class)
+        .doOnSuccess(res -> {
+            logger.info(res.toString());
+        }).doOnError(e -> {
+            logger.error("error verify captcha : {}", e.getMessage());
+            //throw new InvalidCaptchaException(e.getMessage());
+        });
+
         return response;
     }
 
-    public String test_token(String code) throws IOException, GeneralSecurityException {
+    public Mono<TokenDTO> getAccessToken(String code) throws URISyntaxException, IOException, GeneralSecurityException {
+        Mono<TokenDTO> response = null;
+        MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
+
+        bodyValues.add("client_id", CLIENT_ID);
+        bodyValues.add("client_secret", CLIENT_SECRET);
+        bodyValues.add("code", code);
+        bodyValues.add("grant_type", "authorization_code");
+        bodyValues.add("redirect_uri", "postmessage");
+        response = postRequest(bodyValues, "https://www.googleapis.com", "/oauth2/v4/token");
+
+        return response;
+    }
+
+    public String getAccessToken_bylib(String code) throws IOException, GeneralSecurityException {
         GoogleAuthorizationCodeTokenRequest request =
         new GoogleAuthorizationCodeTokenRequest(
             new NetHttpTransport(),
@@ -122,47 +141,6 @@ public class DriveService {
         return token.getAccessToken();
     }
 
-    public Mono<String> testGet() {
-        Mono<String> response = WebClient.create("https://httpbin.org")
-            .get()
-            .uri("/get")
-            .retrieve()
-            .bodyToMono(String.class)
-            .doOnSuccess(res -> {
-                logger.info(res.toString());
-            }).doOnError(e -> {
-                logger.error("error testGet : {}", e.getMessage());
-                //throw new InvalidCaptchaException(e.getMessage());
-            });
-           return response;
-    }
-
-    public Mono<TokenDTO> getAccessToken(String code, String scope) throws URISyntaxException, IOException, GeneralSecurityException {
-        Mono<TokenDTO> response = null;
-        MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
-
-        bodyValues.add("client_id", CLIENT_ID);
-        bodyValues.add("client_secret", CLIENT_SECRET);
-        bodyValues.add("code", code);
-        bodyValues.add("grant_type", "authorization_code");
-        bodyValues.add("redirect_uri", "postmessage");
-
-        response = WebClient.create("https://www.googleapis.com").post()
-        .uri("/oauth2/v4/token")
-        .accept(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromFormData(bodyValues))
-        .retrieve()
-        .bodyToMono(TokenDTO.class)
-        .doOnSuccess(res -> {
-            logger.info(res.toString());
-        }).doOnError(e -> {
-            logger.error("error verify captcha : {}", e.getMessage());
-            //throw new InvalidCaptchaException(e.getMessage());
-        });
-
-        return response;
-    }
-
     public Mono<TokenDTO> refreshAccessToken(String refresh_token) throws URISyntaxException, IOException, GeneralSecurityException {
         Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -171,19 +149,7 @@ public class DriveService {
         bodyValues.add("client_secret", CLIENT_SECRET);
         bodyValues.add("refresh_token", refresh_token);
         bodyValues.add("grant_type", "refresh_token");
-
-        response = WebClient.create("https://www.googleapis.com").post()
-        .uri("/oauth2/v4/token")
-        .accept(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromFormData(bodyValues))
-        .retrieve()
-        .bodyToMono(TokenDTO.class)
-        .doOnSuccess(res -> {
-            logger.info(res.toString());
-        }).doOnError(e -> {
-            logger.error("error verify captcha : {}", e.getMessage());
-            //throw new InvalidCaptchaException(e.getMessage());
-        });
+        response = postRequest(bodyValues, "https://www.googleapis.com", "/oauth2/v4/token");
 
         return response;
     }

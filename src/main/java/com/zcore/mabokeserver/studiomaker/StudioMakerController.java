@@ -15,10 +15,7 @@ import reactor.core.publisher.Mono;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpSession;
 
-//@CrossOrigin
 @RestController
 @RequestMapping("/studiomaker")
 public class StudioMakerController {
@@ -26,18 +23,18 @@ public class StudioMakerController {
     private StudioMakerService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
 
-    @GetMapping
-    public Mono<String> getTest(@RequestHeader(value="tokens") String tokens) {
-        return service.getTest(tokens);
-    }
-    
-    @PostMapping
-    public Mono<TokenDTO> add(@RequestBody GToken token) throws Exception {
-        return service.getToken(token.getCode(), token.getScope());
+    @GetMapping(value = "/files")
+    public Mono<String> getFiles(@RequestHeader(value="tokens")TokenDTO token) {
+        return service.getFiles(token.getAccess_token());
     }
 
-    @GetMapping(value = "/files")
-    public ResponseEntity<String> getFiles(@RequestBody GToken token) {
-        return service.getFiles(token.getAccessToken());
+    @GetMapping(value = "/tokens")
+    public Mono<TokenDTO> getAccessToken(@RequestBody TokenDTO token) throws Exception {
+        return service.getAccessToken(token.getCode());
     }
+
+    /*@GetMapping(value = "/files")
+    public ResponseEntity<String> getDriveFiles(@RequestBody TokenDTO token) {
+        return service.getFiles(token.getAccess_token());
+    }*/
 }

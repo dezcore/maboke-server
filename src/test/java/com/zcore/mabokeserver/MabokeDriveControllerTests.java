@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.zcore.mabokeserver.drive.Drive;
+import com.zcore.mabokeserver.google.Drive;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MabokeDriveControllerTests {
