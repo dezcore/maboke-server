@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,10 +27,10 @@ public class StudioMakerController {
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
 
     @GetMapping
-    public Mono<String> getTest() {
-        return service.getTest();
+    public Mono<String> getTest(@RequestHeader(value="tokens") String tokens) {
+        return service.getTest(tokens);
     }
-
+    
     @PostMapping
     public Mono<TokenDTO> add(@RequestBody GToken token) throws Exception {
         return service.getToken(token.getCode(), token.getScope());

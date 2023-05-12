@@ -22,7 +22,8 @@ public class StudioMakerService {
     private DriveService service;
     private Logger logger = LoggerFactory.getLogger(StudioMakerService.class);
     
-    public Mono<String> getTest() {
+    public Mono<String> getTest(String tokens) {
+        logger.info("Test tokens : " + tokens);
         return service.testGet();
     }
 
