@@ -15,5 +15,8 @@ RUN ["./mvnw", "test"]
 FROM base as dev
 CMD ["./mvnw", "spring-boot:run"]
 
+FROM base as test_dev
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=dev"]
+
 FROM base as build
-RUN ./mvnw package
+RUN ./mvnw package -P prod

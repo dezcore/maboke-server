@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.api.services.drive.model.FileList;
-import com.zcore.mabokeserver.studiomaker.mapper.dto.TokenDTO;
+import com.zcore.mabokeserver.common.mapper.dto.TokenDTO;
 
 import reactor.core.publisher.Mono;
 

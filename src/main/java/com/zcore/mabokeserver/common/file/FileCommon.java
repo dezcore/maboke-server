@@ -25,19 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileCommon {
-
-    public static void getFile(String filePath, String content) {
-        File file = null;
-
-        try {
-            file = new File(filePath);
-            file.createNewFile();
-             //FileOutputStream oFile = new FileOutputStream(file, false); 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } 
-    }
-
     public static void writeFormattedFile(String fileName, String content) {
         FileWriter fileWriter;
         PrintWriter printWriter;
@@ -80,9 +67,9 @@ public class FileCommon {
             e.printStackTrace();
         }
     }
-
-    public static void writeTmpFile(String fileName, String fileContent) {
-        File tmpFile;
+    
+    public static File writeTmpFile(String fileName, String fileContent) {
+        File tmpFile = null;
         FileWriter writer;
 
         try {
@@ -93,6 +80,8 @@ public class FileCommon {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return tmpFile;
     }
 
     public static void writeLargeFile(String fileName, String fileContent) {
@@ -225,5 +214,17 @@ public class FileCommon {
         Path path = Paths.get(fileName);
         String read = Files.readAllLines(path).get(0);
     }*/
+
+    public static void getFile(String filePath, String content) {
+        File file = null;
+
+        try {
+            file = new File(filePath);
+            file.createNewFile();
+             //FileOutputStream oFile = new FileOutputStream(file, false); 
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+    }
 
 }
