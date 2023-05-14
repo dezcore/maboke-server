@@ -66,15 +66,12 @@
 			<version>2.1.0</version>
 		</dependency>
 		
-		
-
-		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client-java6 -->
+		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
 		<dependency>
     		<groupId>com.google.api-client</groupId>
-    		<artifactId>google-api-client-java6</artifactId>
-    		<version>2.1.4</version>
+    		<artifactId>google-api-client</artifactId>
+    		<version>1.35.2</version>
 		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
 		<dependency>
     		<groupId>com.google.oauth-client</groupId>
