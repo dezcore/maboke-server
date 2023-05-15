@@ -1,16 +1,22 @@
 package com.zcore.mabokeserver.google;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -28,7 +34,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.gson.Gson;
 import com.zcore.mabokeserver.common.exception.InvalidTokenException;
 import com.zcore.mabokeserver.common.file.FileCommon;
 import com.zcore.mabokeserver.common.mapper.dto.TokenDTO;
@@ -94,6 +99,7 @@ public class DriveService {
 
             if(service != null) {
                 result = service.files().list()
+                    //.setSpaces("appDataFolder")
                     .setPageSize(10)
                     .setFields("nextPageToken, files(id, name)")
                     .execute();
@@ -107,16 +113,20 @@ public class DriveService {
         });
     }
 
-    public File initFile(String fileName) {
+    public File initFile(String token, String foldersPaths, String fileName) {
+        List<String> parents = null;
         File file = new File();
+
+        if(foldersPaths != null)
+          parents = createFolders(token, foldersPaths);
 
         if(fileName != null) {
             //file.setName("config.json");
             file.setName(fileName);
             //file.setMimeType("");
-            //file.setParents(null);
+            if(parents != null)
+              file.setParents(parents);
             //file.setParents(Collections.singletonList(realFolderId));
-            //file.setParents(Collections.singletonList("appDataFolder"));
             //file.setDescription(description);
             //file.setPermissions(null) // type=user -> role=reader or type=group -> role=commenter
 
@@ -138,32 +148,8 @@ public class DriveService {
         return false;
     }
 
-    public Mono<FileList> listAppData(String token, String appDataFolder) {
-        return Mono.just(token)
-        .map(token_ -> {
-          try {
-            FileList files;
-            Drive service = getService(token_);      
-
-            if(service != null) {
-                files = service.files().list()
-                    .setSpaces("appDataFolder")
-                    .setFields("nextPageToken, files(id, name)")
-                    .setPageSize(10)
-                    .execute();
-
-                return files;
-            }
-
-          } catch (IOException | GeneralSecurityException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-          }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-        });
-    }
-
     public Mono<List<String>> getFileParents(String token, String fileId) {
-        return Mono.just(token)
+      return Mono.just(token)
         .map(token_ -> {
           try {
             File file;
@@ -180,7 +166,7 @@ public class DriveService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-        });
+      });
     }
 
     public Mono<File> createFolder(String token, String folderName) {
@@ -208,15 +194,32 @@ public class DriveService {
         });
     }
 
-    public Mono<File> createFile(String token, String fileName, JsonNode fileContent) {
+    public List<String> createFolders(String token, String foldersPath) {
+      Mono<File> res;
+      String[] folders;
+      List<String> parents = new ArrayList<String>();
+
+      if(foldersPath != null) {
+        folders = foldersPath.split("/");
+
+        for(String folder : folders) {
+          res = createFolder(token, folder);
+          res.doOnNext(result ->  parents.add(result.getId())).subscribe();
+        }
+      }
+
+      return parents;
+    }
+
+    public Mono<File> createFile(String token, String foldersPaths, String fileName, String mimeType, JsonNode fileContent) {
         return Mono.just(token)
         .map(token_ -> {
           try {
             File result = null;
             Drive service = getService(token_);
-            File fileMetadata = initFile(fileName);
+            File fileMetadata = initFile(token, foldersPaths, fileName);
             java.io.File filePath = FileCommon.writeTmpFile(fileName, String.valueOf(fileContent));
-            FileContent mediaContent = new FileContent("text/plain", filePath);//"application/json"
+            FileContent mediaContent = new FileContent(mimeType, filePath);//"application/json" //"text/plain"
            
             if(service != null && fileMetadata != null) {
                 result = service.files().create(fileMetadata, mediaContent)
@@ -232,26 +235,41 @@ public class DriveService {
         });
     }
 
-    public Mono<ByteArrayOutputStream> downFile(String token, String fileId) {
-        return Mono.just(token)
-        .map(token_ -> {
-          try {
-            
-            OutputStream outputStream = new ByteArrayOutputStream();
-            Drive service = getService(token_);
+    public ResponseEntity<InputStreamResource> downFile(String token, String fileId,  String mimeType) {
+      Drive service;
+      java.io.File file;
+      MediaType contentType;
+      FileInputStream input;
+      OutputStream outputStream;
+      InputStreamResource resource;
+      String filePath = "/tmp/" + fileId;
 
-            if(service != null) {
-                service.files().get(fileId)
-                .executeMediaAndDownloadTo(outputStream);
-                
-                return(ByteArrayOutputStream) outputStream;
-            }
+      try {
+        service = getService(token);
 
-          } catch (IOException | GeneralSecurityException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-          }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-        });
+        if(service != null) {
+          outputStream = new FileOutputStream(filePath);
+          service.files().get(fileId)
+          .executeMediaAndDownloadTo(outputStream);
+
+          file = new java.io.File(filePath);
+          input = new FileInputStream(file);
+          contentType =   MediaType.parseMediaType(mimeType);
+          resource = new InputStreamResource(input);
+
+          return ResponseEntity.ok()
+          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
+          .contentType(contentType)
+          .contentLength(file.length())
+          .body(resource);
+         
+        }
+
+      } catch (IOException | GeneralSecurityException e) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+      } 
+
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fileId);
     }
 
     public Mono<ByteArrayOutputStream> exporFile(String token, String fileId, String mimeType) {
@@ -283,36 +301,15 @@ public class DriveService {
             Drive service = getService(token_);
             
             if(service != null) {
-                service.files().delete(fileId).execute();
-                return fileId;
+              service.files().delete(fileId).execute();
+              return fileId;
             }
+
           } catch (IOException | GeneralSecurityException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
-    
-    public Mono<String> getFiles(String url, String uri, String access_token) {
-        //String url =  "https://www.googleapis.com";
-        //String uri = "/drive/v3/files";
-        Mono<String> response = WebClient.create(url)
-            .get()
-            .uri(uri)
-            //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
-            //.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            //.header("Authorization",  "Bearer " + access_token.trim())
-            .retrieve()
-            .bodyToMono(String.class)
-            .doOnSuccess(res -> {
-                logger.info(res.toString());
-            }).doOnError(e -> {
-                logger.error("error testGet : {}", e.getMessage());
-                //throw new InvalidCaptchaException(e.getMessage());
-            });
-            //Gson gson = new Gson();
-            //DriveFiles driveFiles = gson.fromJson(response.getBody(), DriveFiles.class);
-           return response;
     }
 
     public Mono<TokenDTO> postRequest(MultiValueMap<String, String> bodyValues, String url, String uri) {
