@@ -29,7 +29,7 @@ public class SeasonController {
     }
 
     @GetMapping
-    public  Flux<ResponseEntity<Serie>> getSerie() {
+    public  Flux<Serie> getSerie() {
         return serieService.getSerie();
     }
 

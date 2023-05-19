@@ -26,10 +26,10 @@ public class SerieController {
     }
 
     @GetMapping
-    public  Flux<ResponseEntity<Serie>> getSeries() {
+    public Flux<Serie> getSeries() {
         return serieService.getSerie();
     }
-
+    
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Serie>> getById(@PathVariable String id) {
         return serieService.findById(id);

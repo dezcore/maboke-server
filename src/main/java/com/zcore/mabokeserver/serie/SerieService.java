@@ -21,11 +21,13 @@ public class SerieService {
         return serieRepository.save(serie).map(serie1 -> new ResponseEntity<>(serie1, HttpStatus.ACCEPTED))
         .defaultIfEmpty(new ResponseEntity<>(serie, HttpStatus.NOT_ACCEPTABLE));
     }
+
     
-    public Flux<ResponseEntity<Serie>> getSerie(/*Pageable pageable*/) {
-        return serieRepository.findAll()
+    public Flux<Serie> getSerie(/*Pageable pageable*/) {
+        return serieRepository.findAll();
+        /*return serieRepository.findAll()
         .map(series -> new ResponseEntity<>(series, HttpStatus.OK))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));*/
     }
 
     public Mono<ResponseEntity<Serie>> findById(String id) {
