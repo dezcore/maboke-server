@@ -5,10 +5,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -384,15 +391,59 @@ public class DriveService {
     }
 
     public Mono<TokenDTO> refreshAccessToken(String refresh_token) {
-        Mono<TokenDTO> response = null;
-        MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
+      Mono<TokenDTO> response = null;
+      MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
 
-        bodyValues.add("client_id", CLIENT_ID);
-        bodyValues.add("client_secret", CLIENT_SECRET);
-        bodyValues.add("refresh_token", refresh_token);
-        bodyValues.add("grant_type", "refresh_token");
-        response = postRequest(bodyValues, googleApiUrl, googleApiAuthUri);
+      bodyValues.add("client_id", CLIENT_ID);
+      bodyValues.add("client_secret", CLIENT_SECRET);
+      bodyValues.add("refresh_token", refresh_token);
+      bodyValues.add("grant_type", "refresh_token");
+      response = postRequest(bodyValues, googleApiUrl, googleApiAuthUri);
 
-        return response;
+      return response;
     }
+
+    public void getDriveFileContent() {
+
+      /*try {
+        Document doc = Jsoup.connect("https://docs.google.com/document/d/1jwcNOK2J2-D93PD0tRfCDLmk4kzK9Er9D-NJDvPkex4/edit?usp=sharing").get();
+        doc.select("script");
+        logger.info("Test : " + doc.body().text());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }*/
+
+      //DOCS_modelChunk =
+      
+      //\[.*\]
+      //[[].*\[]]
+      Mono<byte[]> contents =  WebClient.create("https://docs.google.com")
+      .get()
+      .uri("/document/d/1jwcNOK2J2-D93PD0tRfCDLmk4kzK9Er9D-NJDvPkex4/edit?usp=sharing")
+      .retrieve()
+      .bodyToMono(byte[].class);
+
+      contents.doOnNext(result -> {
+        String html = new String(result, StandardCharsets.UTF_8);
+        Document doc = Jsoup.parse(html);
+        Elements elements = doc.select("script");
+
+        for(Element element : elements) {
+          if(element.data().contains("DOCS_modelChunk =")) {
+            String regex = ".*";
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher("Hello world !");
+            //logger.info("element : " + element.data());
+            logger.info("Le texte \"" +
+            "\" débute à " + m.start() + " et termine à " + m.end());
+          }
+        }
+
+        //doc.body().text();
+        //logger.info(el.text());
+        //logger.info(html);
+      }).subscribe();
+      //;
+      //return contents;*/
+  }
 }

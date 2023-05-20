@@ -32,6 +32,11 @@ public class GoogleController {
         return service.getAccessToken(token.getCode());
     }
 
+    @GetMapping(value = "/filecontent")
+    public void/*Mono<byte[]>*/  getDrive() {
+        service.getDriveFileContent();
+    }
+
     @GetMapping(value = "/tokenbylib")
     public Mono<TokenDTO> getTokenBylib(@RequestBody TokenDTO token) {
         return service.getAccessTokenByLib(token.getCode());
