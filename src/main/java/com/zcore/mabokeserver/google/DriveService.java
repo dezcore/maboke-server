@@ -410,88 +410,82 @@ public class DriveService {
       return response;
     }
 
-    public void jsonObjHandler(JsonObject obj) {
+    public void jsonObjHandler(JsonObject obj,  List<String> res) {
       //JsonElement current;
       if(obj != null) {
-          System.out.println(obj.get("s").getAsString());
+        res.add(obj.get("s").getAsString());
       }
     }
 
-    public void jsonArrayHandler(JsonArray array) {
+    public void jsonArrayHandler(JsonArray array,  List<String> res) {
       JsonObject jsonObj;
       JsonElement current, targetElement;
 
       if(array != null) {
-          for(int i = 0; i < array.size(); i++) {
-              current = array.get(i);
-              if(current != null && current.isJsonObject()) {
-                  jsonObj = current.getAsJsonObject();
-                  targetElement = jsonObj.get("s");
-                  if(targetElement != null) {
-                      System.out.println(targetElement.getAsString());
-                  }
-              } else {
-                  System.out.println("No JSON");
-              }
+        for(int i = 0; i < array.size(); i++) {
+          current = array.get(i);
+          if(current != null && current.isJsonObject()) {
+            jsonObj = current.getAsJsonObject();
+            targetElement = jsonObj.get("s");
+            if(targetElement != null) {
+              res.add(targetElement.getAsString());
+            }
           }
+        }
       }
     }
 
-    public void extractJson(String json) {
+    public void extractJson(String json,  List<String> res) {
       JsonElement element;
-      
+
       try{
-          JsonReader reader = new JsonReader(new StringReader(json));
-          reader.setLenient(true);
-          element = JsonParser.parseReader(reader);
-          
-          if(element.isJsonArray()) {
-              jsonArrayHandler(element.getAsJsonArray());
-          } else if(element.isJsonObject()) {
-              jsonObjHandler(element.getAsJsonObject());
-          }
+        JsonReader reader = new JsonReader(new StringReader(json));
+        reader.setLenient(true);
+        element = JsonParser.parseReader(reader);
+
+        if(element.isJsonArray()) {
+          jsonArrayHandler(element.getAsJsonArray(), res);
+        } else if(element.isJsonObject()) {
+          jsonObjHandler(element.getAsJsonObject(), res);
+        }
       } catch (JsonParseException e) {
-          e.printStackTrace();
+        e.printStackTrace();
       }
     }
 
-    public void extractTextContent(String content) {
+    public void extractTextContent(String content,  List<String> res) {
       Pattern pattern = Pattern.compile("\\[.*\\]");
       Matcher matcher = pattern.matcher(content);
 
       if(matcher.find()) {
-          for(int i=0; i <= matcher.groupCount(); i++) {
-              extractJson(matcher.group(i));
-          }
+        for(int i=0; i <= matcher.groupCount(); i++) {
+          extractJson(matcher.group(i), res);
+        }
       }
     }
 
-    public void parseHtml(String html) {
+    public void parseHtml(String html, List<String> res) {
       Document doc = Jsoup.parse(html);
       Elements elements = doc.select("script");
 
       for(Element element : elements) {
-          if(element.data().contains("DOCS_modelChunk =")) {
-            extractTextContent(element.data());
-          }
+        if(element.data().contains("DOCS_modelChunk =")) {
+          extractTextContent(element.data(), res);
+        }
       }
     }
-    
-    public void getDriveFileContent() {
-      Mono<byte[]> contents =  WebClient.create("https://docs.google.com")
-      .get()
-      .uri("/document/d/1jwcNOK2J2-D93PD0tRfCDLmk4kzK9Er9D-NJDvPkex4/edit?usp=sharing")
-      .retrieve()
-      .bodyToMono(byte[].class);
 
-      contents.doOnNext(result -> {
+    public Mono<Object> getDriveFileContent(String id) {
+      List<String> res = new ArrayList<String>();
+
+      return WebClient.create("https://docs.google.com")
+      .get()
+      .uri("/document/d/" + id + "/edit?usp=sharing")
+      .retrieve()
+      .bodyToMono(byte[].class).map(result -> {
         String html = new String(result, StandardCharsets.UTF_8);
-        //System.out.println(new File(".").getAbsolutePath());
-        parseHtml(html);
-        //logger.info(el.text());
-        //logger.info(html);
-      }).subscribe();
-      //;
-      //return contents;*/
+        parseHtml(html, res);
+        return String.join("\n", res);
+    });
   }
 }

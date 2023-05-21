@@ -31,10 +31,10 @@ public class GoogleController {
     public Mono<TokenDTO> getToken(@RequestBody TokenDTO token) {
         return service.getAccessToken(token.getCode());
     }
-
+    
     @GetMapping(value = "/filecontent")
-    public void/*Mono<byte[]>*/  getDrive() {
-        service.getDriveFileContent();
+    public Mono<Object> getDrive(@RequestParam String id) {
+        return service.getDriveFileContent(id);
     }
 
     @GetMapping(value = "/tokenbylib")
