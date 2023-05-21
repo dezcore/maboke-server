@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -41,6 +42,12 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.zcore.mabokeserver.common.exception.InvalidTokenException;
 import com.zcore.mabokeserver.common.file.FileCommon;
 import com.zcore.mabokeserver.common.mapper.dto.TokenDTO;
@@ -403,20 +410,74 @@ public class DriveService {
       return response;
     }
 
-    public void getDriveFileContent() {
+    public void jsonObjHandler(JsonObject obj) {
+      //JsonElement current;
+      if(obj != null) {
+          System.out.println(obj.get("s").getAsString());
+      }
+    }
 
-      /*try {
-        Document doc = Jsoup.connect("https://docs.google.com/document/d/1jwcNOK2J2-D93PD0tRfCDLmk4kzK9Er9D-NJDvPkex4/edit?usp=sharing").get();
-        doc.select("script");
-        logger.info("Test : " + doc.body().text());
-      } catch (IOException e) {
-        e.printStackTrace();
-      }*/
+    public void jsonArrayHandler(JsonArray array) {
+      JsonObject jsonObj;
+      JsonElement current, targetElement;
 
-      //DOCS_modelChunk =
+      if(array != null) {
+          for(int i = 0; i < array.size(); i++) {
+              current = array.get(i);
+              if(current != null && current.isJsonObject()) {
+                  jsonObj = current.getAsJsonObject();
+                  targetElement = jsonObj.get("s");
+                  if(targetElement != null) {
+                      System.out.println(targetElement.getAsString());
+                  }
+              } else {
+                  System.out.println("No JSON");
+              }
+          }
+      }
+    }
+
+    public void extractJson(String json) {
+      JsonElement element;
       
-      //\[.*\]
-      //[[].*\[]]
+      try{
+          JsonReader reader = new JsonReader(new StringReader(json));
+          reader.setLenient(true);
+          element = JsonParser.parseReader(reader);
+          
+          if(element.isJsonArray()) {
+              jsonArrayHandler(element.getAsJsonArray());
+          } else if(element.isJsonObject()) {
+              jsonObjHandler(element.getAsJsonObject());
+          }
+      } catch (JsonParseException e) {
+          e.printStackTrace();
+      }
+    }
+
+    public void extractTextContent(String content) {
+      Pattern pattern = Pattern.compile("\\[.*\\]");
+      Matcher matcher = pattern.matcher(content);
+
+      if(matcher.find()) {
+          for(int i=0; i <= matcher.groupCount(); i++) {
+              extractJson(matcher.group(i));
+          }
+      }
+    }
+
+    public void parseHtml(String html) {
+      Document doc = Jsoup.parse(html);
+      Elements elements = doc.select("script");
+
+      for(Element element : elements) {
+          if(element.data().contains("DOCS_modelChunk =")) {
+            extractTextContent(element.data());
+          }
+      }
+    }
+    
+    public void getDriveFileContent() {
       Mono<byte[]> contents =  WebClient.create("https://docs.google.com")
       .get()
       .uri("/document/d/1jwcNOK2J2-D93PD0tRfCDLmk4kzK9Er9D-NJDvPkex4/edit?usp=sharing")
@@ -425,21 +486,8 @@ public class DriveService {
 
       contents.doOnNext(result -> {
         String html = new String(result, StandardCharsets.UTF_8);
-        Document doc = Jsoup.parse(html);
-        Elements elements = doc.select("script");
-
-        for(Element element : elements) {
-          if(element.data().contains("DOCS_modelChunk =")) {
-            String regex = ".*";
-            Pattern p = Pattern.compile(regex);
-            Matcher m = p.matcher("Hello world !");
-            //logger.info("element : " + element.data());
-            logger.info("Le texte \"" +
-            "\" débute à " + m.start() + " et termine à " + m.end());
-          }
-        }
-
-        //doc.body().text();
+        //System.out.println(new File(".").getAbsolutePath());
+        parseHtml(html);
         //logger.info(el.text());
         //logger.info(html);
       }).subscribe();
