@@ -26,6 +26,7 @@ public class Serie {
     private String img;
     private String category;
     private String summary;
+    private boolean hide;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime year;
     private Director director;

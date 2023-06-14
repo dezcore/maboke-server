@@ -15,6 +15,7 @@ public class SecurityConfiguration {
         return http.httpBasic().disable().csrf().disable()
         .authorizeExchange(exchanges -> 
         exchanges.pathMatchers("/view/**").permitAll() 
+        .pathMatchers("/serie/**").permitAll()
         .pathMatchers("/studiomaker/**").permitAll()
         .anyExchange().permitAll()
         )

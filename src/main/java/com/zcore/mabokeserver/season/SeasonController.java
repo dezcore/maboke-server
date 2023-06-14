@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zcore.mabokeserver.serie.Serie;
 import com.zcore.mabokeserver.serie.SerieService;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -26,11 +25,6 @@ public class SeasonController {
     @PostMapping
     public Mono<ResponseEntity<Serie>> add(@RequestBody Serie serie) throws Exception {
         return serieService.add(serie);
-    }
-
-    @GetMapping
-    public  Flux<Serie> getSerie() {
-        return serieService.getSerie();
     }
 
     @GetMapping("/{id}")
