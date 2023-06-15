@@ -17,6 +17,7 @@ import lombok.ToString;
 public class Video {
     @Id
     private String id;
+    private String img;
     private String title;
     private String category;
     private String summary;

@@ -19,6 +19,7 @@ import lombok.ToString;
 public class Season {
     @Id
     private String id;
+     private String img;
     private String title;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime date;
