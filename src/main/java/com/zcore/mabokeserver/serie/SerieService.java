@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -25,20 +26,15 @@ public class SerieService {
         return serieRepository.save(serie).map(serie1 -> new ResponseEntity<>(serie1, HttpStatus.ACCEPTED))
         .defaultIfEmpty(new ResponseEntity<>(serie, HttpStatus.NOT_ACCEPTABLE));
     }
-
+    
     public Mono<Page<Serie>> getSerie(Pageable paging) {
         return this.serieRepository.count()
             .flatMap(serieCount -> {
                 return this.serieRepository.findAll()
-                    .buffer(paging.getPageSize(), (paging.getPageNumber() + 1))
-                    .elementAt(paging.getPageNumber(), new ArrayList<>())
-                    .map(series -> new PageImpl<Serie>(series, paging, serieCount));
-            });
-        //return serieRepository.findAllNotNull(paging);
-        //return serieRepository.findAll().skip(paging.getOffset()).take(paging.getPageSize());
-        /*return serieRepository.findAll()
-        .map(series -> new ResponseEntity<>(series, HttpStatus.OK))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));*/
+                    .skip((paging.getPageNumber()-1) * paging.getPageSize())
+                    .take(paging.getPageSize())
+                    .collectList().map(series -> new PageImpl<Serie>(series, paging, serieCount));
+        });
     }
 
     public Mono<ResponseEntity<Serie>> findById(String id) {
