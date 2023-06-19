@@ -14,7 +14,8 @@ public class SecurityConfiguration {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http.httpBasic().disable().csrf().disable()
         .authorizeExchange(exchanges -> 
-        exchanges.pathMatchers("/view/**").permitAll() 
+        exchanges.pathMatchers("/view/**").permitAll()
+        .pathMatchers("/nomatch/**").permitAll() 
         .pathMatchers("/serie/**").permitAll()
         .pathMatchers("/studiomaker/**").permitAll()
         .anyExchange().permitAll()
