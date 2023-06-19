@@ -22,6 +22,7 @@ import lombok.ToString;
 public class Serie {
     @Id
     private String id;
+    private String state;
     private String title;
     private String img;
     private String category;

@@ -40,7 +40,6 @@ public class SerieService {
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping
     public Mono<ResponseEntity<Serie>> updateSerie(Serie serie) {
         String id = serie.getId();
 

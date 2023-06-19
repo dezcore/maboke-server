@@ -81,7 +81,6 @@ public class NomatchService {
         .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping
     public Mono<ResponseEntity<Nomatch>> updateNomatch(Nomatch serie) {
         String id = serie.getId();
 
