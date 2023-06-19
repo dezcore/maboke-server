@@ -43,7 +43,7 @@ public class SerieService {
     public Mono<ResponseEntity<Serie>> updateSerie(Serie serie) {
         String id = serie.getId();
 
-        return serieRepository.findById(serie.getId())
+        return this.serieRepository.findById(serie.getId())
             .flatMap(serie1 -> {
                 serie.setId(id);
                 return serieRepository.save(serie)
