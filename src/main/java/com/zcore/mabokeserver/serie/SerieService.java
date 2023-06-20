@@ -1,5 +1,9 @@
 package com.zcore.mabokeserver.serie;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
 
+import com.zcore.mabokeserver.season.Season;
+import com.zcore.mabokeserver.video.Video;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -19,15 +24,45 @@ public class SerieService {
     private SerieRepository serieRepository;
     private Logger logger = LoggerFactory.getLogger(SerieService.class);
 
+     public Serie videoToSerie(Video video) {
+        Season season; 
+        List<Video> videos;
+        List<Season> seasons;
+        Serie serie = new Serie();
+
+        if(video != null) {
+            season = new Season();
+            videos = new ArrayList<>();
+            seasons = new ArrayList<>();
+
+            videos.add(video);
+            season.setTitle(video.getTitle());
+            season.setImg(video.getImg());
+            season.setNumber(1);
+            season.setSummary("");
+            season.setDate(LocalDateTime.now());
+            season.setVideos(videos);
+
+            serie.setTitle(video.getTitle());
+            serie.setImg(video.getImg());
+            serie.setHide(true);
+            serie.setYear(LocalDateTime.now());
+            seasons.add(season);
+            serie.setSeasons(seasons);
+        }
+
+        return serie;
+    }
+    
     public Mono<ResponseEntity<Serie>> add(Serie serie) {
         return serieRepository.save(serie).map(serie1 -> new ResponseEntity<>(serie1, HttpStatus.ACCEPTED))
         .defaultIfEmpty(new ResponseEntity<>(serie, HttpStatus.NOT_ACCEPTABLE));
     }
-    
-    public Mono<Page<Serie>> getSerie(Pageable paging) {
-        return this.serieRepository.count()
+
+    public Mono<Page<Serie>> getSeries(Pageable paging, String state) {
+        return this.serieRepository.countByState(state)
             .flatMap(serieCount -> {
-                return this.serieRepository.findAll()
+                return this.serieRepository.findAllByState(state)
                     .skip((paging.getPageNumber()-1) * paging.getPageSize())
                     .take(paging.getPageSize())
                     .collectList().map(series -> new PageImpl<Serie>(series, paging, serieCount));

@@ -29,23 +29,23 @@ public class SerieController {
     }
 
     @GetMapping
-    public Mono<Page<Serie>> getSeries(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) {
+    public Mono<Page<Serie>> getSeries(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size, @RequestParam String state) {
         Pageable paging = PageRequest.of(page, size);
-        return serieService.getSerie(paging);
+        return this.serieService.getSeries(paging, state);
     }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Serie>> getById(@PathVariable String id) {
-        return serieService.findById(id);
+        return this.serieService.findById(id);
     }
 
     @PutMapping
     public Mono<ResponseEntity<Serie>> updateView(@RequestBody Serie serie) {
-        return serieService.updateSerie(serie);
+        return this.serieService.updateSerie(serie);
     }
     
     @DeleteMapping("/{id}")
     public  Mono<Void> deleteView(@PathVariable("id") String id) {
-        return serieService.deleteSerie(id);
+        return this.serieService.deleteSerie(id);
     }
 }

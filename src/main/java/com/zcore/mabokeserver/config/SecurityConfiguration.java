@@ -16,7 +16,6 @@ public class SecurityConfiguration {
         .authorizeExchange(exchanges -> 
         exchanges.pathMatchers("/view/**").permitAll()
         .pathMatchers("/conflict/**").permitAll() 
-        .pathMatchers("/nomatch/**").permitAll() 
         .pathMatchers("/serie/**").permitAll()
         .pathMatchers("/studiomaker/**").permitAll()
         .anyExchange().permitAll()
