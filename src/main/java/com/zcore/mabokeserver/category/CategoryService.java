@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -18,24 +20,23 @@ public class CategoryService {
     private Logger logger = LoggerFactory.getLogger(CategoryService.class);
 
     public Mono<ResponseEntity<Category>> add(Category category) {
-        return this.categoryRepository.existsByPageAndCategory(category.getPage(), category.getCategory())
+        return this.categoryRepository.existsByCategory(category.getCategory())
             .flatMap(exist -> {
-                Mono<Category> moConflict = (!exist ? 
-                    this.categoryRepository.save(category) : 
-                    this.categoryRepository.findByPageAndCategory(category.getPage(), category.getCategory())
-                );
-                return moConflict.map(conflict2 -> new ResponseEntity<>(conflict2, HttpStatus.ACCEPTED));
+                if(exist) {
+                    return this.categoryRepository.findByCategory(category.getCategory()).flatMap(category1 -> {
+                        category.setId(category1.getId());
+                        return categoryRepository.save(category).map(category2 -> new ResponseEntity<>(category2, HttpStatus.ACCEPTED));
+                    }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                } else {
+                    return this.categoryRepository.save(category).map(conflict2 -> new ResponseEntity<>(conflict2, HttpStatus.ACCEPTED));
+                }
         }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
-    public Mono<Page<Category>> getCategories(Pageable paging) {
-        return this.categoryRepository.count()
-            .flatMap(categoryCount -> {
-                return this.categoryRepository.findAll()
-                    .skip((paging.getPageNumber()-1) * paging.getPageSize())
-                    .take(paging.getPageSize())
-                    .collectList().map(series -> new PageImpl<Category>(series, paging, categoryCount));
-        });
+
+    public Flux<ResponseEntity<Category>> getCategories() {
+        return this.categoryRepository.findAll()
+        .map(categories -> new ResponseEntity<>(categories, HttpStatus.OK))
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
     
     public Mono<ResponseEntity<Category>> updateCategory(Category category) {

@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -29,9 +28,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public Mono<Page<Category>> getCategories(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) {
-        Pageable paging = PageRequest.of(page, size);
-        return this.categoryService.getCategories(paging);
+    public Flux<ResponseEntity<Category>>  getCategories() {
+        return this.categoryService.getCategories();
     }
 
     @PutMapping
