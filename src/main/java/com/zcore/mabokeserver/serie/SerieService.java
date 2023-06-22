@@ -69,6 +69,16 @@ public class SerieService {
         });
     }
 
+    public Mono<Page<Serie>> getSeriesByCategories(Pageable paging) {
+        return this.serieRepository.countByCategoryIsNot("Default")
+            .flatMap(serieCount -> {
+                return this.serieRepository.findByCategoryIsNot("Default")
+                    .skip((paging.getPageNumber()-1) * paging.getPageSize())
+                    .take(paging.getPageSize())
+                    .collectList().map(series -> new PageImpl<Serie>(series, paging, serieCount));
+        });
+    }
+    
     public Mono<ResponseEntity<Serie>> findById(String id) {
         return serieRepository.findById(id)
         .map(serie -> new ResponseEntity<>(serie, HttpStatus.OK))

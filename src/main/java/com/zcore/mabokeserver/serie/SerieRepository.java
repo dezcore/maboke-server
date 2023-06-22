@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface SerieRepository extends ReactiveMongoRepository<Serie, String> {
     public Mono<Long> countByState(String state);
     public Flux<Serie> findAllByState(String state);
+    public Flux<Serie> findByCategoryIsNot(String category);
+    public Mono<Long> countByCategoryIsNot(String category);
 }

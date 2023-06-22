@@ -34,6 +34,12 @@ public class SerieController {
         return this.serieService.getSeries(paging, state);
     }
 
+    @GetMapping(value = "/categories")
+    public Mono<Page<Serie>> getSeriesByCategories(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "3") int size) {
+        Pageable paging = PageRequest.of(page, size);
+        return this.serieService.getSeriesByCategories(paging);
+    }
+    
     @GetMapping("/{id}")
     public Mono<ResponseEntity<Serie>> getById(@PathVariable String id) {
         return this.serieService.findById(id);

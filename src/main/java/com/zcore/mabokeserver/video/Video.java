@@ -26,7 +26,7 @@ public class Video {
     private String videoId;
     private String censor_rating;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
-    private LocalDateTime created_at;
+    private LocalDateTime year;//created_at
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime upDated_at;
 }
