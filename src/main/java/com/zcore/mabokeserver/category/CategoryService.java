@@ -3,9 +3,6 @@ package com.zcore.mabokeserver.category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,10 +30,11 @@ public class CategoryService {
         }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    public Flux<ResponseEntity<Category>> getCategories() {
-        return this.categoryRepository.findAll()
+    public Flux<Category> getCategories() {
+        return this.categoryRepository.findAll();
+        /*return this.categoryRepository.findAll()
         .map(categories -> new ResponseEntity<>(categories, HttpStatus.OK))
-        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));*/
     }
     
     public Mono<ResponseEntity<Category>> updateCategory(Category category) {
