@@ -27,11 +27,11 @@ public class GoogleController {
     @Autowired
     private DriveService service;
 
-    @GetMapping(value = "/token")
+    @PostMapping(value = "/token")
     public Mono<TokenDTO> getToken(@RequestBody TokenDTO token) {
         return service.getAccessToken(token.getCode());
     }
-    
+
     @GetMapping(value = "/filecontent")
     public Mono<Object> getDrive(@RequestParam String id) {
         return service.getDriveFileContent(id);
@@ -41,7 +41,7 @@ public class GoogleController {
     public Mono<TokenDTO> getTokenBylib(@RequestBody TokenDTO token) {
         return service.getAccessTokenByLib(token.getCode());
     }
-
+    
     @GetMapping(value = "/refreshtoken")
     public Mono<TokenDTO> getRefreshToken(@RequestBody TokenDTO token) {
         return service.refreshAccessToken(token.getRefresh_token());
@@ -76,4 +76,5 @@ public class GoogleController {
     public Mono<String> deleFile(@RequestHeader(value="token")String token, @RequestParam String fileId) {
         return service.deleFile(token, fileId);
     }
+
 }
