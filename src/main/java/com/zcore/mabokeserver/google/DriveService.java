@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,6 +120,35 @@ public class DriveService {
                     .execute();
 
                 return result;
+            }
+          } catch (IOException | GeneralSecurityException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
+          }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
+        });
+    }
+
+    public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, String fileName) {
+        return Mono.just(token)
+        .map(token_ -> {
+          try {
+            FileList result;
+            Drive service = getService(token_);
+            java.util.Map<String, String> map = new HashMap<>();
+            //logger.info("getDriveFilesByName : " + fileName + ", " + token_);
+            if(service != null) {
+                result = service.files().list()
+                    //.setSpaces("appDataFolder")
+                    //.setPageSize(10)
+                    .setFields("nextPageToken, files(id, name)")
+                    .execute();
+                    
+                for(File file : result.getFiles()) {
+                  if(file.getName().contains(fileName)) {
+                    map.put(file.getName(), file.getId());
+                  }
+                }
+                return map;
             }
           } catch (IOException | GeneralSecurityException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);

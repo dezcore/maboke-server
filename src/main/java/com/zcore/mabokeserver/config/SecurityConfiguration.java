@@ -15,11 +15,10 @@ public class SecurityConfiguration {
         return http.httpBasic().disable().csrf().disable()
         .authorizeExchange(exchanges -> 
         exchanges.pathMatchers("/view/**").permitAll()
-        .pathMatchers("/google/**").permitAll()
+        .pathMatchers("/gapi/**").permitAll()
         .pathMatchers("/conflict/**").permitAll()
         .pathMatchers("/category/**").permitAll()  
         .pathMatchers("/serie/**").permitAll()
-        .pathMatchers("/studiomaker/**").permitAll()
         .anyExchange().permitAll()
         )
         .build();

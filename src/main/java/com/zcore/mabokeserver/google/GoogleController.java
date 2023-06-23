@@ -1,6 +1,7 @@
 package com.zcore.mabokeserver.google;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -22,7 +23,7 @@ import com.zcore.mabokeserver.common.mapper.dto.TokenDTO;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/google")
+@RequestMapping("/gapi")
 public class GoogleController {
     @Autowired
     private DriveService service;
@@ -48,10 +49,15 @@ public class GoogleController {
     }
 
     @GetMapping(value = "/drive/files")
-    public  Mono<FileList> getFiles(@RequestHeader(value="token")String token) {
+    public Mono<FileList> getFiles(@RequestHeader(value="token")String token) {
         return service.getDriveFiles(token);
     }
 
+    @GetMapping(value = "/dapi/name")
+    public Mono<Map<String, String>> getFileByName(@RequestHeader String token,  @RequestParam String fileName) {
+        return this.service.getDriveFilesByName(token, fileName);
+    }
+    
     @GetMapping(value = "/drive/files/download")
     public ResponseEntity<InputStreamResource> downFile(@RequestHeader(value="token")String token, @RequestParam String fileId,@RequestParam String mimeType) {
         return service.downFile(token, fileId, mimeType);
