@@ -279,6 +279,43 @@ public class DriveService {
         });
     }
 
+    public File setFileParents(String token, String parentFileId, String fileName) {
+      File file = new File();
+      List<String> parentsIds = new ArrayList<>();
+
+      if(fileName != null) {
+        file.setName(fileName);
+        parentsIds.add(parentFileId);
+        file.setParents(parentsIds);
+      }
+
+      return file;
+    }
+
+    public Mono<File> appendFile(String token, String parentFileId, String fileName, String mimeType, JsonNode fileContent) {
+        return Mono.just(token)
+        .map(token_ -> {
+          try {
+            File result = null;
+            Drive service = getService(token_);
+            File fileMetadata = setFileParents(token, parentFileId, fileName);
+            java.io.File filePath = FileCommon.writeTmpFile(fileName, String.valueOf(fileContent));
+            FileContent mediaContent = new FileContent(mimeType, filePath);//"application/json" //"text/plain"
+           
+            if(service != null && fileMetadata != null) {
+                result = service.files().create(fileMetadata, mediaContent)
+                .setFields("id, parents")
+                .execute();
+                return result;
+            }
+
+          } catch (IOException | GeneralSecurityException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+          }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
+        });
+    }
+    
     public ResponseEntity<InputStreamResource> downFile(String token, String fileId,  String mimeType) {
       Drive service;
       java.io.File file;

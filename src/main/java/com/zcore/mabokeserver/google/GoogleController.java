@@ -68,6 +68,11 @@ public class GoogleController {
         return service.createFile(token, dto.getFoldersPaths(), dto.getFileName(), dto.getMimeType(), dto.getFileContent());
     }
 
+    @PostMapping(value = "/dapi/file/append")
+    public Mono<File> appendFileToFolder(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
+        return service.appendFile(token, dto.getParentFileId(), dto.getFileName(), dto.getMimeType(), dto.getFileContent());
+    }
+
     @PostMapping(value = "/drive/folders/create")
     public Mono<File> createFolder(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
         return service.createFolder(token, dto.getFolderName());

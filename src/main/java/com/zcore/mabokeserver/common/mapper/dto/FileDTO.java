@@ -14,5 +14,6 @@ public class FileDTO {
     private String fileName;
     private String folderName;
     private String foldersPaths;
+    private String parentFileId;
     private JsonNode fileContent;
 }
