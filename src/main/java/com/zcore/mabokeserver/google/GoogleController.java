@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,6 +82,11 @@ public class GoogleController {
     @PostMapping(value = "/drive/folders/paths")
     public List<String> createFolders(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
         return service.createFolders(token, dto.getFoldersPaths());
+    }
+
+    @PutMapping(value = "/dapi/file")
+    public Mono<File> updateFile(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
+        return service.updateFile(token, dto.getFileId(), dto.getFileName(), dto.getMimeType(), dto.getFileContent());
     }
 
     @DeleteMapping(value = "/drive/files/delete")

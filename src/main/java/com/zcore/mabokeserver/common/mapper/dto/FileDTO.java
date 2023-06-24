@@ -10,6 +10,7 @@ import lombok.ToString;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FileDTO {
+    private String fileId;
     private String mimeType;
     private String fileName;
     private String folderName;
