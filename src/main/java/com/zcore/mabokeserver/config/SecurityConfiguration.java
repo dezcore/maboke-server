@@ -15,7 +15,10 @@ public class SecurityConfiguration {
         return http.httpBasic().disable().csrf().disable()
         .authorizeExchange(exchanges -> 
         exchanges.pathMatchers("/view/**").permitAll()
-        .pathMatchers("/gapi/**").permitAll()
+        .pathMatchers("/gtoken/**").permitAll()
+        .pathMatchers("/gfiles/**").permitAll()
+        .pathMatchers("/gfile/**").permitAll()
+         .pathMatchers("/gpermission/**").permitAll()
         .pathMatchers("/conflict/**").permitAll()
         .pathMatchers("/category/**").permitAll()  
         .pathMatchers("/serie/**").permitAll()

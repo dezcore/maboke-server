@@ -59,6 +59,7 @@ import reactor.core.publisher.Mono;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.Permission;
 
 @RequiredArgsConstructor
 @Service
@@ -104,7 +105,7 @@ public class DriveService {
         return service;
     }
 
-    public Mono<FileList> getDriveFiles(String token) {
+    /*public Mono<FileList> getDriveFiles(String token) {
 
         return Mono.just(token)
         .map(token_ -> {
@@ -126,9 +127,9 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, String fileName) {
+    /*public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, String fileName) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -155,65 +156,77 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
+    }*/
+
+  /*public File initFile(String token, String foldersPaths, String fileName) {
+    List<String> parents = null;
+    File file = new File();
+
+    if(foldersPaths != null)
+      parents = createFolders(token, foldersPaths);
+
+    if(fileName != null) {
+      //file.setName("config.json");
+      file.setName(fileName);
+      //file.setMimeType("");
+      if(parents != null)
+        file.setParents(parents);
+      //file.setParents(Collections.singletonList(realFolderId));
+      //file.setDescription(description);
     }
 
-    public File initFile(String token, String foldersPaths, String fileName) {
-        List<String> parents = null;
-        File file = new File();
+    return file;
+  }*/
 
-        if(foldersPaths != null)
-          parents = createFolders(token, foldersPaths);
-
-        if(fileName != null) {
-            //file.setName("config.json");
-            file.setName(fileName);
-            //file.setMimeType("");
-            if(parents != null)
-              file.setParents(parents);
-            //file.setParents(Collections.singletonList(realFolderId));
-            //file.setDescription(description);
-            //file.setPermissions(null) // type=user -> role=reader or type=group -> role=commenter
-
-            //Permission userPermission = new Permission()
-            //.setType("user")
-            //.setRole("writer");
-        }
-
-        return file;
+  /*public boolean containsFile(FileList files) {
+    if(files != null) {
+      for(File file : files.getFiles()) {
+        System.out.printf("Found file: %s (%s)\n", file.getName(), file.getId());
+      }
     }
 
-    public boolean containsFile(FileList files) {
-        if(files != null) {
-            for(File file : files.getFiles()) {
-                System.out.printf("Found file: %s (%s)\n", file.getName(), file.getId());
-            }
-        }
+    return false;
+  }*/
 
-        return false;
-    }
+  /*public Mono<List<String>> getFileParents(String token, String fileId) {
+    return Mono.just(token)
+      .map(token_ -> {
+        try {
+          File file;
+          Drive service = getService(token_);      
 
-    public Mono<List<String>> getFileParents(String token, String fileId) {
-      return Mono.just(token)
-        .map(token_ -> {
-          try {
-            File file;
-            Drive service = getService(token_);      
-
-            if(service != null) {
-                file = service.files().get(fileId)
-                .setFields("parents")
-                .execute();
-                return file.getParents();
-            }
-
-          } catch (IOException | GeneralSecurityException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+          if(service != null) {
+            file = service.files().get(fileId)
+            .setFields("parents")
+            .execute();
+            return file.getParents();
           }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-      });
-    }
 
-    public Mono<File> createFolder(String token, String folderName) {
+        } catch (IOException | GeneralSecurityException e) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
+    });
+  }*/
+
+  /*public Mono<Permission> setFilePermission(String token, String fileId, String type, String role) {
+    return Mono.just(token)
+      .map(token_ -> {
+        Permission create;
+        Permission permission = new Permission();
+        try {
+          Drive service = getService(token_);
+          permission.setType(type);
+          permission.setRole(role);
+          create = service.permissions().create(fileId, permission).setFields("id").execute();
+          return create;
+        } catch (IOException | GeneralSecurityException e) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+      });
+  }*/
+  
+    /*public Mono<File> createFolder(String token, String folderName) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -222,7 +235,8 @@ public class DriveService {
             Drive service = getService(token_);
 
             fileMetadata.setName(folderName);
-            fileMetadata.setMimeType("application/vnd.google-apps.folder");            
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+            
 
             if(service != null) {
                 file = service.files().create(fileMetadata)
@@ -236,14 +250,14 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public List<String> createFolders(String token, String foldersPath) {
+    /*public List<String> createFolders(String token, String foldersPath) {
       Mono<File> res;
       String[] folders;
       List<String> parents = new ArrayList<String>();
 
-      if(foldersPath != null) {
+      if(foldersPath != null) {  
         folders = foldersPath.split("/");
 
         for(String folder : folders) {
@@ -253,33 +267,32 @@ public class DriveService {
       }
 
       return parents;
-    }
+    }*/
 
-    public Mono<File> createFile(String token, String foldersPaths, String fileName, String mimeType, JsonNode fileContent) {
-        return Mono.just(token)
-        .map(token_ -> {
-          try {
-            File result = null;
-            Drive service = getService(token_);
-            File fileMetadata = initFile(token, foldersPaths, fileName);
-            java.io.File filePath = FileCommon.writeTmpFile(fileName, String.valueOf(fileContent));
-            FileContent mediaContent = new FileContent(mimeType, filePath);//"application/json" //"text/plain"
-           
-            if(service != null && fileMetadata != null) {
-                result = service.files().create(fileMetadata, mediaContent)
-                .setFields("id, parents")
-                .execute();
-                return result;
-            }
+  /*public Mono<File> createFile(String token, String foldersPaths, String fileName, String mimeType, JsonNode fileContent) {
+    return Mono.just(token)
+      .map(token_ -> {
+        try {
+          File result = null;
+          Drive service = getService(token_);
+          File fileMetadata = initFile(token, foldersPaths, fileName);
+          java.io.File filePath = FileCommon.writeTmpFile(fileName, String.valueOf(fileContent));
+          FileContent mediaContent = new FileContent(mimeType, filePath);//"application/json" //"text/plain"
 
-          } catch (IOException | GeneralSecurityException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+          if(service != null && fileMetadata != null) {
+            result = service.files().create(fileMetadata, mediaContent)
+            .setFields("id, parents")
+            .execute();
+            return result;
           }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-        });
-    }
+        } catch (IOException | GeneralSecurityException e) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
+    });
+  }*/
 
-    public Mono<File> updateFile(String token, String fileId, String fileName, String mimeType, JsonNode fileContent) {
+    /*public Mono<File> updateFile(String token, String fileId, String fileName, String mimeType, JsonNode fileContent) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -299,9 +312,9 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public File setFileParents(String token, String parentFileId, String fileName) {
+    /*public File setFileParents(String token, String parentFileId, String fileName) {
       File file = new File();
       List<String> parentsIds = new ArrayList<>();
 
@@ -312,9 +325,8 @@ public class DriveService {
       }
 
       return file;
-    }
-
-    public Mono<File> appendFile(String token, String parentFileId, String fileName, String mimeType, JsonNode fileContent) {
+    }*/
+    /*public Mono<File> appendFile(String token, String parentFileId, String fileName, String mimeType, JsonNode fileContent) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -336,9 +348,9 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public ResponseEntity<InputStreamResource> downFile(String token, String fileId,  String mimeType) {
+    /*public ResponseEntity<InputStreamResource> downFile(String token, String fileId,  String mimeType) {
       Drive service;
       java.io.File file;
       MediaType contentType;
@@ -373,9 +385,9 @@ public class DriveService {
       } 
 
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fileId);
-    }
+    }*/
 
-    public Mono<ByteArrayOutputStream> exporFile(String token, String fileId, String mimeType) {
+    /*public Mono<ByteArrayOutputStream> exporFile(String token, String fileId, String mimeType) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -395,9 +407,9 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public Mono<String> deleFile(String token, String fileId) {
+    /*public Mono<String> deleFile(String token, String fileId) {
         return Mono.just(token)
         .map(token_ -> {
           try {
@@ -413,9 +425,9 @@ public class DriveService {
           }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
         });
-    }
+    }*/
 
-    public Mono<TokenDTO> postRequest(MultiValueMap<String, String> bodyValues, String url, String uri) {
+    /*public Mono<TokenDTO> postRequest(MultiValueMap<String, String> bodyValues, String url, String uri) {
         Mono<TokenDTO> response = null;
 
         response = WebClient.create(url).post()
@@ -436,10 +448,9 @@ public class DriveService {
         });
 
         return response;
-    }
-  
+    }*/
 
-    public Mono<TokenDTO> getAccessToken(String code) {
+    /*public Mono<TokenDTO> getAccessToken(String code) {
         Mono<TokenDTO> response = null;
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
         bodyValues.add("client_id", CLIENT_ID);
@@ -450,9 +461,9 @@ public class DriveService {
         response = postRequest(bodyValues, googleApiUrl, googleApiAuthUri);
 
         return response;
-    }
+    }*/
     
-    public  Mono<TokenDTO> getAccessTokenByLib(String code) {
+    /*public  Mono<TokenDTO> getAccessTokenByLib(String code) {
         return Mono.just(code)
         .map(code_ -> {
           try {
@@ -484,9 +495,9 @@ public class DriveService {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, code_);
         });
-    }
+    }*/
 
-    public Mono<TokenDTO> refreshAccessToken(String refresh_token) {
+    /*public Mono<TokenDTO> refreshAccessToken(String refresh_token) {
       Mono<TokenDTO> response = null;
       MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
 
@@ -497,16 +508,16 @@ public class DriveService {
       response = postRequest(bodyValues, googleApiUrl, googleApiAuthUri);
 
       return response;
-    }
+    }*/
 
-    public void jsonObjHandler(JsonObject obj,  List<String> res) {
+    /*public void jsonObjHandler(JsonObject obj,  List<String> res) {
       //JsonElement current;
       if(obj != null) {
         res.add(obj.get("s").getAsString());
       }
-    }
+    }*/
 
-    public void jsonArrayHandler(JsonArray array,  List<String> res) {
+    /*public void jsonArrayHandler(JsonArray array,  List<String> res) {
       JsonObject jsonObj;
       JsonElement current, targetElement;
 
@@ -522,9 +533,9 @@ public class DriveService {
           }
         }
       }
-    }
+    }*/
 
-    public void extractJson(String json,  List<String> res) {
+    /*public void extractJson(String json,  List<String> res) {
       JsonElement element;
 
       try{
@@ -540,9 +551,9 @@ public class DriveService {
       } catch (JsonParseException e) {
         e.printStackTrace();
       }
-    }
+    }*/
 
-    public void extractTextContent(String content,  List<String> res) {
+    /*public void extractTextContent(String content,  List<String> res) {
       Pattern pattern = Pattern.compile("\\[.*\\]");
       Matcher matcher = pattern.matcher(content);
 
@@ -551,9 +562,9 @@ public class DriveService {
           extractJson(matcher.group(i), res);
         }
       }
-    }
+    }*/
 
-    public void parseHtml(String html, List<String> res) {
+    /*public void parseHtml(String html, List<String> res) {
       Document doc = Jsoup.parse(html);
       Elements elements = doc.select("script");
 
@@ -562,9 +573,9 @@ public class DriveService {
           extractTextContent(element.data(), res);
         }
       }
-    }
+    }*/
 
-    public Mono<Object> getDriveFileContent(String id) {
+    /*public Mono<Object> getDriveFileContent(String id) {
       List<String> res = new ArrayList<String>();
 
       return WebClient.create("https://docs.google.com")
@@ -576,5 +587,5 @@ public class DriveService {
         parseHtml(html, res);
         return String.join("\n", res);
     });
-  }
+  }*/
 }
