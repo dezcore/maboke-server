@@ -19,8 +19,9 @@ public class FileDTO {
     private String folderName;
     private String foldersPaths;
     private String parentFileId;
+    private JsonNode fileContent;
+    private List<String> filesIds;
     private GPermission permission;
     private List<String> filesNames;
-    private JsonNode fileContent;
     private List<JsonNode> contents;
 }

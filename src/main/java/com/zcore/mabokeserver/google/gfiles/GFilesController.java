@@ -26,7 +26,12 @@ public class GFilesController {
     public Mono<FileList> getFiles(@RequestHeader(value="token")String token) {
         return this.service.getDriveFiles(token);
     }
-    
+
+    @GetMapping(value = "/contents")
+    public Mono<List<Object>> getDrive(@RequestBody FileDTO dto) {
+        return this.service.getDriveFilesContents(dto);
+    }
+
     @PostMapping
     public  Mono<List<File>> createFiles(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
         return this.service.createFiles(token, dto);
@@ -36,7 +41,7 @@ public class GFilesController {
     public  Mono<List<File>> appendFiles(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
         return this.service.appendFiles(token, dto);
     }
-    
+
     @PostMapping(value = "/folders")
     public List<String> createFolders(@RequestHeader(value="token")String token, @RequestBody FileDTO dto) {
         return this.service.createFolders(token, dto.getFoldersPaths());

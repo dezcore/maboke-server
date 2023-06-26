@@ -22,7 +22,6 @@ import com.google.api.services.drive.model.FileList;
 import com.zcore.mabokeserver.common.mapper.dto.FileDTO;
 import com.zcore.mabokeserver.google.gclient.GClientService;
 import com.zcore.mabokeserver.google.gfile.GFileService;
-import com.zcore.mabokeserver.google.gpermission.GPermission;
 import com.zcore.mabokeserver.google.gpermission.GPermissionService;
 
 @RequiredArgsConstructor
@@ -92,14 +91,11 @@ public class GFilesService {
         List<File> files = new ArrayList<>();
         String folderPath = dto_.getFoldersPaths();
         String mimeType = dto_.getMimeType();
-        GPermission permission = dto_.getPermission();
 
         for(String name : dto_.getFilesNames()) {
           fileContent = dto_.getContents().get(index);
           file = this.fileService.createFile(token, folderPath, name, mimeType, fileContent);
           file.doOnNext(res -> {
-            if(permission != null)
-              this.pService.setFilePermission(token, res.getId(), permission.getType(), permission.getRole());
             files.add(res);
           }).subscribe();
           index++;
@@ -121,10 +117,7 @@ public class GFilesService {
           fileContent = dto_.getContents().get(index);
           file = this.fileService.appendFile(token, dto_.getParentFileId(), name, mimeType, fileContent);
           file.doOnNext(res -> {
-            GPermission permission = dto.getPermission();
-            //logger.info("fileId : " + permission);
-            if(permission != null)
-              this.pService.setFilePermission(token, res.getId(), permission.getType(), permission.getRole());
+            this.pService.setFilePermission(token, res, dto.getPermission());
             files.add(res);
           }).subscribe();
           index++;
@@ -136,9 +129,27 @@ public class GFilesService {
   public List<String> createFolders(String token, String foldersPath) {
     return this.fileService.createFolders(token, foldersPath);
   }
-
+  
   public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, List<String> names) {
     return this.fileService.getDriveFilesByName(token, names);
   }
 
+  public Mono<List<Object>> getDriveFilesContents(FileDTO dto) {
+    logger.info("Get Contents");
+    return Mono.just(dto)
+      .map(dto_ -> {
+        int index = 0;
+        Mono<Object> content;        
+        List<Object> filesContents = new ArrayList<>();
+        for(String fileId : dto_.getFilesIds()) {
+          content = this.fileService.getDriveFileContent(fileId);
+          content.doOnNext(res -> {
+            filesContents.add(res);
+          }).subscribe();
+          index++;
+        }
+
+        return filesContents;
+    });
+  }
 }
