@@ -2,6 +2,7 @@ package com.zcore.mabokeserver.google.gdrive;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,9 @@ public class GDriveController {
     }
 
     @GetMapping("/names")
-    public Mono<ResponseEntity<List<GDrive>>> getByNames(@RequestParam ArrayList<String> names) {
-        return this.service.findByNames(names);
+    public Mono<ResponseEntity<List<GDrive>>> getByNames(@RequestParam String names) {
+        String[] list = names.split(",");
+        return this.service.findByNames(list);
     }
     
     @PostMapping

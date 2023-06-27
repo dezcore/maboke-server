@@ -31,7 +31,7 @@ public class GDriveService {
       .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
   
-  public Mono<ResponseEntity<List<GDrive>>> findByNames(ArrayList<String> names) {
+  public Mono<ResponseEntity<List<GDrive>>> findByNames(String[] names) {
     logger.info("Names : " + names);
     return Mono.just(names)
       .map(names_ -> {
