@@ -47,15 +47,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-
 @RequiredArgsConstructor
 @Service
 public class GFileService {
   @Autowired
   private GClientService clientService;
-
   private Logger logger = LoggerFactory.getLogger(GFileService.class);
-
+  
   public void jsonObjHandler(JsonObject obj,  List<String> res) {
     //JsonElement current;
     if(obj != null) {
@@ -385,7 +383,7 @@ public class GFileService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
     });
   }
-
+  
   public Mono<String> deleFile(String token, String fileId) {
     return Mono.just(token)
       .map(token_ -> {
@@ -399,7 +397,6 @@ public class GFileService {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, token_);
-          // //https://drive.google.com/file/d/1iFNlCgyhSSrXN2D1yn0c5SFVLkcy8fqB/view
     });
   }
 }

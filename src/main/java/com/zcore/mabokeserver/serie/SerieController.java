@@ -25,7 +25,7 @@ public class SerieController {
 
     @PostMapping
     public Mono<ResponseEntity<Serie>> add(@RequestBody Serie serie) throws Exception {
-        return  serieService.add(serie);
+        return this.serieService.add(serie);
     }
 
     @GetMapping

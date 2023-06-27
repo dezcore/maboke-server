@@ -103,7 +103,7 @@ public class GFilesService {
         return files;
     });
   }
-
+  
   public Mono<List<File>> appendFiles(String token,  FileDTO dto) {
     return Mono.just(dto)
       .map(dto_ -> {
@@ -117,7 +117,6 @@ public class GFilesService {
           fileContent = dto_.getContents().get(index);
           file = this.fileService.appendFile(token, dto_.getParentFileId(), name, mimeType, fileContent);
           file.doOnNext(res -> {
-            this.pService.setFilePermission(token, res, dto.getPermission());
             files.add(res);
           }).subscribe();
           index++;

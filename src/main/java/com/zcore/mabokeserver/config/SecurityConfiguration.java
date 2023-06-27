@@ -16,6 +16,7 @@ public class SecurityConfiguration {
         .authorizeExchange(exchanges -> 
         exchanges.pathMatchers("/view/**").permitAll()
         .pathMatchers("/gtoken/**").permitAll()
+        .pathMatchers("/gdrive/**").permitAll()
         .pathMatchers("/gfiles/**").permitAll()
         .pathMatchers("/gfile/**").permitAll()
          .pathMatchers("/gpermission/**").permitAll()
