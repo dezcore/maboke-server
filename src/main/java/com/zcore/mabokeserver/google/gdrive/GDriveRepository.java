@@ -11,4 +11,5 @@ public interface GDriveRepository extends ReactiveMongoRepository<GDrive, String
     public Mono<Boolean> existsByName(String name);
     public Flux<GDrive> findAllByName(String name);
     public Mono<Void> deleteAllById(List<String> ids);
+    public Flux<GDrive> findByNameIn(List<String> names);
 }

@@ -1,6 +1,6 @@
 package com.zcore.mabokeserver.google.gdrive;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -24,27 +25,17 @@ public class GDriveService {
       .map(serie -> new ResponseEntity<>(serie, HttpStatus.OK))
       .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
-  
+
   public Mono<ResponseEntity<Boolean>> existByName(String name) {
     return this.gRepository.existsByName(name)
       .map(serie -> new ResponseEntity<>(serie, HttpStatus.OK))
       .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
   }
-  
-  public Mono<ResponseEntity<List<GDrive>>> findByNames(String[] names) {
-    logger.info("Names : " + names);
-    return Mono.just(names)
-      .map(names_ -> {
-        List<GDrive> drives = new ArrayList<>();
-        for(String name : names) {
-          findByName(name).doOnNext(drive -> {
-            drives.add(drive.getBody());
-          }).subscribe();
-      }
-      return new ResponseEntity<>(drives, HttpStatus.ACCEPTED);
-    }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-  }
 
+  public Flux<GDrive> findByNames(String names) {
+    String[] namesArray = names.split(",");
+    return this.gRepository.findByNameIn(Arrays.asList(namesArray));
+  }
 
   public Mono<ResponseEntity<GDrive>> addGFile(GDrive gFile) {
     return (
@@ -61,18 +52,8 @@ public class GDriveService {
     );
   }
 
-  public Mono<List<GDrive>> addGFiles(List<GDrive> gFiles) {
-    return Mono.just(gFiles)
-      .map(gFiles_ -> {
-        List<GDrive> drives = new ArrayList<>();
-        for(GDrive gFile : gFiles) {
-          addGFile(gFile).doOnNext(drive -> {
-            drives.add(drive.getBody());
-          }).subscribe();
-        }
-
-        return drives;
-      });
+  public Flux<GDrive> addGFiles(List<GDrive> gFiles) {
+    return this.gRepository.saveAll(gFiles);
   }
 
   public Mono<ResponseEntity<GDrive>> update(GDrive drive) {

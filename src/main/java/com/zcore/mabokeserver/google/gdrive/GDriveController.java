@@ -1,8 +1,6 @@
 package com.zcore.mabokeserver.google.gdrive;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -35,18 +35,17 @@ public class GDriveController {
     }
 
     @GetMapping("/names")
-    public Mono<ResponseEntity<List<GDrive>>> getByNames(@RequestParam String names) {
-        String[] list = names.split(",");
-        return this.service.findByNames(list);
+    public Flux<GDrive> getByNames(@RequestParam String names) {
+        return this.service.findByNames(names);
     }
-    
+
     @PostMapping
     public Mono<ResponseEntity<GDrive>> add(@RequestBody GDrive drive) throws Exception {
         return this.service.addGFile(drive);
     }
 
     @PostMapping(value="/all")
-    public Mono<List<GDrive>> addAll(@RequestBody List<GDrive> drives) throws Exception {
+    public Flux<GDrive> addAll(@RequestBody List<GDrive> drives) throws Exception {
         return this.service.addGFiles(drives);
     }
 
