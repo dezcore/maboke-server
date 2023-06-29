@@ -47,12 +47,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.springframework.beans.factory.annotation.Value;
+
+
 @RequiredArgsConstructor
 @Service
 public class GFileService {
   @Autowired
   private GClientService clientService;
   private Logger logger = LoggerFactory.getLogger(GFileService.class);
+
+  @Value("${api.google.api.key}")
+  private String API_KEY;
   
   public void jsonObjHandler(JsonObject obj,  List<String> res) {
     //JsonElement current;
@@ -130,6 +136,20 @@ public class GFileService {
         String html = new String(result, StandardCharsets.UTF_8);
         parseHtml(html, res);
         return String.join("\n", res);
+    });
+  }
+
+  public Mono<Object> getDriveFileContent2(String id) {
+    List<String> res = new ArrayList<String>();
+    
+    return WebClient.create("https://www.googleapis.com")
+      .get()
+      .uri("/drive/v3/files/" + id + "?alt=media&key=" + API_KEY)
+      .retrieve()
+      .bodyToMono(byte[].class).map(result -> {
+        String html = new String(result, StandardCharsets.UTF_8);
+        //parseHtml(html, res);
+        return html;//String.join("\n", res);
     });
   }
 
@@ -308,6 +328,9 @@ public class GFileService {
     });
   }
   
+  public void test_content() {
+  }
+
   public ResponseEntity<InputStreamResource> downFile(String token, String fileId,  String mimeType) {
     Drive service;
     java.io.File file;

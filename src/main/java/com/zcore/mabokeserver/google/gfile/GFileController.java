@@ -30,6 +30,11 @@ public class GFileController {
     public Mono<Object> getDrive(@RequestParam String id) {
         return service.getDriveFileContent(id);
     }
+
+    @GetMapping(value = "/content2")
+    public Mono<Object> getDrive2(@RequestParam String id) {
+        return service.getDriveFileContent2(id);
+    }
     
     @GetMapping(value = "/name")
     public Mono<Map<String, String>> getFileByName(@RequestHeader String token,  @RequestParam String fileName) {
