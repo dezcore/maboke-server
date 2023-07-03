@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.zcore.mabokeserver.category.Category;
 import com.zcore.mabokeserver.common.mapper.dto.FileDTO;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -21,7 +23,7 @@ import reactor.core.publisher.Mono;
 public class GFilesController {
     @Autowired
     private GFilesService service;
-
+    
     @GetMapping
     public Mono<FileList> getFiles(@RequestHeader(value="token")String token) {
         return this.service.getDriveFiles(token);
@@ -30,6 +32,11 @@ public class GFilesController {
     @GetMapping(value = "/contents")
     public Mono<List<Object>> getDrive(@RequestBody FileDTO dto) {
         return this.service.getDriveFilesContents(dto);
+    }
+
+    @PostMapping(value = "/generate")
+    public Flux<Category> generateAppFiles() {
+        return this.service.generateAppFiles();
     }
 
     @PostMapping

@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 public class GFileController {
     @Autowired
     private GFileService service;
-
+    
     @GetMapping(value = "/content")
     public Mono<Object> getDrive(@RequestParam String id) {
         return service.getDriveFileContent(id);
@@ -33,9 +33,9 @@ public class GFileController {
 
     @GetMapping(value = "/content2")
     public Mono<Object> getDrive2(@RequestParam String id) {
-        return service.getDriveFileContent2(id);
+        return service.getDriveFileContentByKey(id);
     }
-    
+
     @GetMapping(value = "/name")
     public Mono<Map<String, String>> getFileByName(@RequestHeader String token,  @RequestParam String fileName) {
         return this.service.getDriveFileByName(token, fileName);

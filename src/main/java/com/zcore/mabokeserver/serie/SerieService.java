@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.zcore.mabokeserver.season.Season;
 import com.zcore.mabokeserver.video.Video;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -94,6 +96,10 @@ public class SerieService {
                 return serieRepository.save(serie)
             .map(serie2 -> new ResponseEntity<>(serie2, HttpStatus.ACCEPTED));
         }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    
+    public Flux<Serie> findByCategory(String category) {
+        return this.serieRepository.findByCategory(category);
     }
 
     public Mono<Void> deleteSerie(String id) {

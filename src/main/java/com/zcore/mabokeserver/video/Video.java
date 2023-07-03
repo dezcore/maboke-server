@@ -29,4 +29,19 @@ public class Video {
     private LocalDateTime year;//created_at
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime upDated_at;
+    
+    public String toJson() {
+        return "{"+
+            "\"img\":\""+ img + "\","+
+            "\"title\":\""+ title + "\","+
+            "\"category\":\""+ category + "\","+
+            "\"summary\":\""+ summary + "\","+
+            "\"url\":\""+ url + "\","+
+            "\"length\":\""+ length + "\","+
+            "\"videoId\":\""+ videoId + "\","+
+            "\"censor_rating\":\""+ censor_rating + "\","+
+            "\"year\":\""+ year + "\","+
+            "\"upDated_at\":\""+ upDated_at + "\""+
+        "}";
+    }
 }

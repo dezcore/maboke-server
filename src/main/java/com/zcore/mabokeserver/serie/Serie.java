@@ -38,4 +38,29 @@ public class Serie {
     private Cast cast;
     private List<String> contentTags;
     private List<Season> seasons;
+
+    public String toJson() {
+        int index = 0;
+        String json = "{"+
+            "\"state\":\""+ state + "\","+
+            "\"title\":\""+ title + "\","+
+            "\"img\":\""+ img + "\","+
+            "\"category\":\""+ category + "\","+
+            "\"summary\":\""+ summary + "\","+
+            "\"gender\":\""+ gender + "\","+
+            "\"country\":\""+ country + "\","+
+            "\"hide\":\""+ hide + "\","+
+            "\"year\":\""+ year + "\","+
+            "\"seasons\":[";
+
+        for(Season season: seasons) {
+            json += season.toJson();
+            index++;
+            if(index < seasons.size())
+                json += ",";
+        }
+        
+        json += "]}";
+        return json;
+    }
 }

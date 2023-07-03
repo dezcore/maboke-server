@@ -17,8 +17,25 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileCommon {
+    public static boolean createFile(String filePath) throws IOException {
+        //"src/myfile.txt"
+        Path myPath = Paths.get(filePath);
+
+        if(Files.exists(myPath)) {
+            System.out.println("File already exists");
+            return true;
+        } else {
+            Files.createFile(myPath);
+            System.out.println("File created");
+            return false;
+        }
+    }
+    
     public static void writeFormattedFile(String fileName, String content) {
         FileWriter fileWriter;
         PrintWriter printWriter;

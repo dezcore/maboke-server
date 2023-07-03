@@ -3,7 +3,9 @@ package com.zcore.mabokeserver.google.gfiles;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,28 +15,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.zcore.mabokeserver.category.Category;
+import com.zcore.mabokeserver.category.CategoryService;
+import com.zcore.mabokeserver.common.file.FileCommon;
 import com.zcore.mabokeserver.common.mapper.dto.FileDTO;
 import com.zcore.mabokeserver.google.gclient.GClientService;
 import com.zcore.mabokeserver.google.gfile.GFileService;
-import com.zcore.mabokeserver.google.gpermission.GPermissionService;
+import com.zcore.mabokeserver.serie.Serie;
+import com.zcore.mabokeserver.serie.SerieService;
 
 @RequiredArgsConstructor
 @Service
 public class GFilesService {
   @Autowired
-  private GPermissionService pService;
-  
-  @Autowired
   private GFileService fileService;
 
   @Autowired
+  private CategoryService categoryService; 
+
+  @Autowired
   private GClientService clientService;
+  
+  @Autowired
+  private SerieService serieService;
 
   private Logger logger = LoggerFactory.getLogger(GFilesService.class);
 
@@ -132,9 +142,8 @@ public class GFilesService {
   public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, List<String> names) {
     return this.fileService.getDriveFilesByName(token, names);
   }
-
+  
   public Mono<List<Object>> getDriveFilesContents(FileDTO dto) {
-    logger.info("Get Contents");
     return Mono.just(dto)
       .map(dto_ -> {
         int index = 0;
@@ -150,5 +159,57 @@ public class GFilesService {
 
         return filesContents;
     });
+  }
+
+  public void createFiles( Map<String, ArrayList<String>> map) {
+    Flux<Serie> seFlux;
+    for(Map.Entry<String, ArrayList<String>> entry : map.entrySet()) {
+      String filePath = "/app/data/" + entry.getKey() + ".json";
+      try{
+        FileCommon.createFile(filePath);
+        ArrayList<String> categories =  map.get(entry.getKey());
+
+        for(String category : categories) {
+          seFlux = this.serieService.findByCategory(category);
+          seFlux.collectList().subscribe(series -> {
+            String json;
+            int index = 0;
+
+            if(0 < categories.indexOf(category) && 0 < series.size())
+              FileCommon.appendFile(filePath, ",");
+
+            for(Serie serie : series) {
+              json = serie.toJson();
+              FileCommon.appendFile(filePath, json);
+              index++;
+
+              if(index < series.size())
+                FileCommon.appendFile(filePath, ",");
+            }
+          });
+        }
+      } catch(IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public Flux<Category> generateAppFiles() {
+    Map<String, ArrayList<String>> map = new HashMap<>();
+    Flux<Category> flux = this.categoryService.getPages();
+
+    flux.collectList().subscribe(categories -> {
+      String page;
+      for(Category pageCategory : categories) {
+        page = pageCategory.getPage();
+
+        if(map.get(page) == null)
+          map.put(page, new ArrayList<>());
+        map.get(page).add(pageCategory.getCategory());
+      }
+      this.createFiles(map);
+    });
+
+    return flux;
   }
 }

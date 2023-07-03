@@ -12,6 +12,7 @@ import com.zcore.mabokeserver.video.Video;
 
 import lombok.Data;
 import lombok.ToString;
+
 @Document
 @Data
 @ToString
@@ -19,11 +20,31 @@ import lombok.ToString;
 public class Season {
     @Id
     private String id;
-     private String img;
+    private String img;
     private String title;
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime date;
     private String summary;
     private int number;
     private List<Video> videos;
+
+    public String toJson() {
+        int index = 0;
+        String json = "{"+
+            "\"img\":\""+ img + "\","+
+            "\"title\":\""+ title + "\","+
+            "\"date\":\""+ date + "\","+
+            "\"summary\":\""+ summary + "\","+
+            "\"number\":\""+ number + "\","+
+            "\"videos\":[";
+
+        for(Video video : videos) {
+            json += video.toJson();    
+            index++;
+            if(index < videos.size())
+                json += ",";
+        }
+        json += "]}";
+        return json;
+    }
 }

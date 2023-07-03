@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.zcore.mabokeserver.common.file.FileCommon;
@@ -87,8 +88,8 @@ public class GFileService {
 
   public void extractJson(String json,  List<String> res) {
     JsonElement element;
-
     try{
+      logger.info("Json : " + json);
       JsonReader reader = new JsonReader(new StringReader(json));
       reader.setLenient(true);
       element = JsonParser.parseReader(reader);
@@ -138,23 +139,24 @@ public class GFileService {
         return String.join("\n", res);
     });
   }
-
-  public Mono<Object> getDriveFileContent2(String id) {
-    List<String> res = new ArrayList<String>();
-    
+  
+  public Mono<Object> getDriveFileContentByKey(String id) {    
     return WebClient.create("https://www.googleapis.com")
       .get()
       .uri("/drive/v3/files/" + id + "?alt=media&key=" + API_KEY)
       .retrieve()
       .bodyToMono(byte[].class).map(result -> {
-        String html = new String(result, StandardCharsets.UTF_8);
-        //parseHtml(html, res);
-        return html;//String.join("\n", res);
+        String json;
+        try {
+          json = new String(result, StandardCharsets.UTF_8);
+          return json;
+        } catch(WebClientResponseException e) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, id);
+        }
     });
   }
 
-
-   public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, List<String> names) {
+  public Mono<java.util.Map<String, String>> getDriveFilesByName(String token, List<String> names) {
     return Mono.just(token)
       .map(token_ -> {
         try {
